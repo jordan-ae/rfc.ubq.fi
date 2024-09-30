@@ -51,9 +51,11 @@ export async function fetchIssuePreviews(): Promise<TaskNoFull[]> {
 
     const issuesJsonUrl = "https://raw.githubusercontent.com/ubiquity/devpool-directory/development/devpool-issues.json";
 
-    const publicResponse = await fetch(issuesJsonUrl).then((res) => res.json()).then((res) => res as GitHubIssue[]);
+    const publicResponse = await fetch(issuesJsonUrl)
+      .then((res) => res.json())
+      .then((res) => res as GitHubIssue[]);
 
-    const publicIssues = publicResponse.filter((issue: GitHubIssue) => !issue.pull_request)
+    const publicIssues = publicResponse.filter((issue: GitHubIssue) => !issue.pull_request);
 
     // Fetch issues from the private repository only if the user has access
     if (hasPrivateRepoAccess) {

@@ -9,7 +9,7 @@ const issuesJsonUrl = "https://raw.githubusercontent.com/ubiquity/devpool-direct
 
 export async function fetchIssuesFull(taskPreviews: TaskMaybeFull[]): Promise<TaskWithFull[]> {
   const urlPattern = /https:\/\/api\.github\.com\/repos\/(?<org>[^/]+)\/(?<repo>[^/]+)\/issues\/(?<issue_number>\d+)/;
-  const allIssues = await fetch(issuesJsonUrl).then((res) => res.json()) as unknown as GitHubIssue[];
+  const allIssues = (await fetch(issuesJsonUrl).then((res) => res.json())) as unknown as GitHubIssue[];
 
   const fullTaskPromises = taskPreviews.map(async (task) => {
     const match = task.preview.url.match(urlPattern);
@@ -21,7 +21,7 @@ export async function fetchIssuesFull(taskPreviews: TaskMaybeFull[]): Promise<Ta
 
     const { issue_number } = match.groups;
 
-    const response = allIssues.find((issue) => issue.number.toString() == issue_number)
+    const response = allIssues.find((issue) => issue.number.toString() == issue_number);
 
     task.full = response as GitHubIssue;
 
