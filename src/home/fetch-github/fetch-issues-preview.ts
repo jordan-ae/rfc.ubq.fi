@@ -1,10 +1,10 @@
-import { RequestError } from "@octokit/request-error";
 import { Octokit } from "@octokit/rest";
 import { getGitHubAccessToken, getGitHubUserName } from "../getters/get-github-access-token";
 import { GitHubIssue } from "../github-types";
 import { displayPopupMessage } from "../rendering/display-popup-modal";
-import { handleRateLimit } from "./handle-rate-limit";
 import { TaskNoFull } from "./preview-to-full-mapping";
+import { handleRateLimit } from "./handle-rate-limit";
+import { RequestError } from "@octokit/request-error";
 
 async function checkPrivateRepoAccess(): Promise<boolean> {
   const octokit = new Octokit({ auth: await getGitHubAccessToken() });
@@ -48,13 +48,12 @@ export async function fetchIssuePreviews(): Promise<TaskNoFull[]> {
     hasPrivateRepoAccess = await checkPrivateRepoAccess();
 
     // Fetch issues from public repository
-    const publicResponse = await octokit.paginate(octokit.issues.listForRepo, {
-      owner: "ubiquity",
-      repo: "devpool-directory",
-      state: "open",
-    });
 
-    const publicIssues = publicResponse.filter((issue: GitHubIssue) => !issue.pull_request);
+    const issuesJsonUrl = "https://raw.githubusercontent.com/ubiquity/devpool-directory/development/devpool-issues.json";
+
+    const publicResponse = await fetch(issuesJsonUrl).then((res) => res.json()).then((res) => res as GitHubIssue[]);
+
+    const publicIssues = publicResponse.filter((issue: GitHubIssue) => !issue.pull_request)
 
     // Fetch issues from the private repository only if the user has access
     if (hasPrivateRepoAccess) {
