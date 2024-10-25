@@ -1,4 +1,4 @@
-const cacheName = "pwacache-v2"; // Increment this when files change
+const cacheName = "pwacache-v3"; // Increment this when files change
 const urlsToCache = [
   "/",
   "/index.html",
@@ -46,6 +46,25 @@ self.addEventListener("activate", (event) => {
 // Fetch event: Respond from cache or network
 self.addEventListener("fetch", (event) => {
   const url = new URL(event.request.url);
+
+  // Network-first strategy for index.html and dynamic routes
+  if (url.origin === location.origin && !urlsToCache.includes(url.pathname)) {
+    event.respondWith(
+      fetch(event.request)
+        .then((networkResponse) => {
+          // Update the cache with the latest version of index.html
+          return caches.open(cacheName).then((cache) => {
+            cache.put(event.request, networkResponse.clone());
+            return networkResponse;
+          });
+        })
+        .catch(() => {
+          // Fallback to the cached version if the network is unavailable
+          return caches.match("/index.html");
+        })
+    );
+    return;
+  }
 
   // If the request has query parameters, bypass the cache
   if (url.search) { 

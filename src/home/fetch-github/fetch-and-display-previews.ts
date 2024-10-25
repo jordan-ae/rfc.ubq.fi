@@ -45,12 +45,28 @@ function getProposalsOnlyFilter(getProposals: boolean) {
   };
 }
 
+function filterIssuesByOrganization(issues: GitHubIssue[]): GitHubIssue[] {
+  // get organization name from first thing after / in URL
+  const pathSegments = window.location.pathname.split("/").filter(Boolean);
+  const urlOrgName = pathSegments.length > 0 ? pathSegments[0] : null;
+
+  //  if there is no organization name in the URL, return all issues
+  if (!urlOrgName) return issues;
+
+  // compare URL organization name with the organization name in the issue's repository URL
+  return issues.filter((issue) => {
+    const [issueOrgName] = issue.repository_url.split("/").slice(-2);
+    return issueOrgName === urlOrgName;
+  });
+}
+
 // checks the cache's integrity, sorts issues, checks Directory/Proposals toggle, renders them and applies avatars
 export async function displayGitHubIssues(sorting?: Sorting, options = { ordering: "normal" }) {
   await checkCacheIntegrityAndSyncTasks();
   const cachedTasks = taskManager.getTasks();
   const sortedIssues = sortIssuesController(cachedTasks, sorting, options);
-  const sortedAndFiltered = sortedIssues.filter(getProposalsOnlyFilter(isProposalOnlyViewer));
+  let sortedAndFiltered = sortedIssues.filter(getProposalsOnlyFilter(isProposalOnlyViewer));
+  sortedAndFiltered = filterIssuesByOrganization(sortedAndFiltered);
   renderGitHubIssues(sortedAndFiltered);
   applyAvatarsToIssues();
 }
