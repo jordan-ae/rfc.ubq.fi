@@ -10,7 +10,6 @@ export class SortingManager {
   private _sortingButtons: HTMLElement;
   private _instanceId: string;
   private _sortingState: { [key: string]: "unsorted" | "ascending" | "descending" } = {}; // Track state for each sorting option
-  private _filterTimeout: number | null = null; // Timeout ID for debouncing
 
   constructor(filtersId: string, sortingOptions: readonly string[], instanceId: string) {
     const filters = document.getElementById(filtersId);
@@ -81,17 +80,13 @@ export class SortingManager {
     });
     observer.observe(issuesContainer, { childList: true });
 
-    // Debounce input to avoid frequent filtering
     textBox.addEventListener("input", () => {
-      if (this._filterTimeout) clearTimeout(this._filterTimeout); // Clear previous timeout
-      this._filterTimeout = window.setTimeout(() => {
-        const filterText = textBox.value;
-        // Update the URL with the search parameter
-        const newURL = new URL(window.location.href);
-        newURL.searchParams.set("search", filterText);
-        window.history.replaceState({}, "", newURL.toString());
-        filterIssues(); // Run the filter function
-      }, 300); // 300ms debounce delay
+      const filterText = textBox.value;
+      // Update the URL with the search parameter
+      const newURL = new URL(window.location.href);
+      newURL.searchParams.set("search", filterText);
+      window.history.replaceState({}, "", newURL.toString());
+      filterIssues(); // Run the filter function immediately on input
     });
 
     return textBox;
