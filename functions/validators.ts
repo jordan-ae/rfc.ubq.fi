@@ -13,9 +13,9 @@ export async function validatePOST(request: Request): Promise<ValidationResult> 
   try {
     const response = (await octokit.request("GET /user")) as GitHubUserResponse;
 
-    const githubUser = response.data;
+    const gitHubUser = response.data;
 
-    return { isValid: true, githubUserId: githubUser.id.toString(), referralCode: referralCode };
+    return { isValid: true, gitHubUserId: gitHubUser.id.toString(), referralCode: referralCode };
   } catch (error) {
     console.error("User is not logged in");
     return { isValid: false };

@@ -11,7 +11,7 @@ export interface POSTRequestBody {
 
 export interface ValidationResult {
   isValid: boolean;
-  githubUserId?: string;
+  gitHubUserId?: string;
   referralCode?: string;
 }
 
