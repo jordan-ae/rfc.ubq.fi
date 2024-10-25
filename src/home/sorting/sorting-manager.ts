@@ -10,6 +10,7 @@ export class SortingManager {
   private _sortingButtons: HTMLElement;
   private _instanceId: string;
   private _sortingState: { [key: string]: "unsorted" | "ascending" | "descending" } = {}; // Track state for each sorting option
+  private _filterTimeout: number | null = null; // Timeout ID for debouncing
 
   constructor(filtersId: string, sortingOptions: readonly string[], instanceId: string) {
     const filters = document.getElementById(filtersId);
@@ -71,27 +72,26 @@ export class SortingManager {
       }
     };
 
-    // Observer to detect when children are added to the issues container
+    // Observer to detect when children are added to the issues container (only once)
     const observer = new MutationObserver(() => {
       if (issuesContainer.children.length > 0) {
         observer.disconnect(); // Stop observing once children are present
         if (searchQuery) filterIssues(); // Filter on load if search query exists
       }
     });
-
-    // Start observing the issues container for child elements
     observer.observe(issuesContainer, { childList: true });
 
-    // Add event listener for input changes to filter and update URL
+    // Debounce input to avoid frequent filtering
     textBox.addEventListener("input", () => {
-      const filterText = textBox.value;
-      // Update the URL with the search parameter
-      const newURL = new URL(window.location.href);
-      newURL.searchParams.set("search", filterText);
-      window.history.replaceState({}, "", newURL.toString());
-
-      // Filter the issues based on the input
-      filterIssues();
+      if (this._filterTimeout) clearTimeout(this._filterTimeout); // Clear previous timeout
+      this._filterTimeout = window.setTimeout(() => {
+        const filterText = textBox.value;
+        // Update the URL with the search parameter
+        const newURL = new URL(window.location.href);
+        newURL.searchParams.set("search", filterText);
+        window.history.replaceState({}, "", newURL.toString());
+        filterIssues(); // Run the filter function
+      }, 300); // 300ms debounce delay
     });
 
     return textBox;
@@ -137,17 +137,16 @@ export class SortingManager {
   }
 
   private _handleSortingClick(input: HTMLInputElement, option: string) {
-    // Get the current ordering from the button (normal, reverse, or disabled)
     const currentOrdering = input.getAttribute("data-ordering");
     let newOrdering: string;
 
     // Determine the new ordering based on the current state
     if (currentOrdering === "normal") {
-      newOrdering = "reverse"; // Second click -> reverse sorting
+      newOrdering = "reverse";
     } else if (currentOrdering === "reverse") {
-      newOrdering = "disabled"; // Third click -> disable sorting
+      newOrdering = "disabled";
     } else {
-      newOrdering = "normal"; // First click or disabled -> normal sorting
+      newOrdering = "normal";
     }
 
     // Apply the new ordering state
@@ -157,16 +156,13 @@ export class SortingManager {
         node.setAttribute("data-ordering", "");
       }
     });
-    // Clear sorting if disabled
+
     if (newOrdering === "disabled") {
-      this._lastChecked = null; // Reset the last checked input
-      input.checked = false; // Uncheck the button
-      this._filterTextBox.value = ""; // Clear the text filter box
-      this._clearSorting(); // Reset sorting to default or disabled state
-  
-  
+      this._lastChecked = null;
+      input.checked = false;
+      this._clearSorting();
     } else {
-      input.checked = input !== this._lastChecked; // Handle checking the radio
+      input.checked = input !== this._lastChecked;
       this._lastChecked = input.checked ? input : null;
       input.setAttribute("data-ordering", newOrdering);
 
@@ -175,23 +171,13 @@ export class SortingManager {
         void displayGitHubIssues(option as Sorting, { ordering: newOrdering });
       } catch (error) {
         renderErrorCatch(error as ErrorEvent);
-      // load from network in the background
-    // const fetchedPreviews = await fetchIssuePreviews();
-    // const cachedTasks = taskManager.getTasks();
-    // const updatedCachedIssues = verifyGitHubIssueState(cachedTasks, fetchedPreviews);
-    // displayGitHubIssues(sorting, options);
-    // taskManager.syncTasks(updatedCachedIssues);
-    // return fetchAvatars();
       }
     }
   }
-  // Method to clear sorting and reset the display
+
   private _clearSorting() {
-    // Logic to reset sorting goes here
-    // For example, you can reset to the default ordering or reload the unsorted issues
     try {
-      // Reload unsorted issues (or reset to initial state)
-      void displayGitHubIssues(); // Without any sorting option
+      void displayGitHubIssues();
     } catch (error) {
       renderErrorInModal(error as Error);
     }
