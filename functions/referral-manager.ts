@@ -59,6 +59,15 @@ async function handleSet(env: Env, request: Request): Promise<Response> {
 
   const { gitHubUserId, referralCode } = result;
 
+  const oldRefCode = await env.KVNamespace.get(gitHubUserId);
+
+  if (oldRefCode) {
+    return new Response(`Key '${gitHubUserId}' already has a referral code: '${oldRefCode}'`, {
+      headers: corsHeaders,
+      status: 404,
+    });
+  }
+
   await env.KVNamespace.put(gitHubUserId, referralCode);
 
   return new Response(`Key '${gitHubUserId}' added with value '${referralCode}'`, {

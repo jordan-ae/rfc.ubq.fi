@@ -13,7 +13,7 @@ export async function authentication() {
 
   const gitHubUser: null | GitHubUser = await getGitHubUser();
   if (gitHubUser) {
-    await trackReferralCode(gitHubUser.id);
+    await trackReferralCode();
     await displayGitHubUserInformation(gitHubUser);
   }
 }

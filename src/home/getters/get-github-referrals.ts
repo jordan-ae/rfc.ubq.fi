@@ -1,4 +1,4 @@
-export async function getReferralFromUser(devGitHubId: number): Promise<string | null> {
+export async function getReferralFromUser(devGitHubId: string): Promise<string | null> {
   const url = `/referral-manager?key=${encodeURIComponent(devGitHubId)}`;
 
   const response = await fetch(url, {
