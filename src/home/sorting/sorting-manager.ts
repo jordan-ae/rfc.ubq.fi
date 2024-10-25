@@ -152,13 +152,19 @@ export class SortingManager {
 
     // Apply the new ordering state
     input.setAttribute("data-ordering", newOrdering);
-
+    input.parentElement?.childNodes.forEach((node) => {
+      if (node instanceof HTMLInputElement) {
+        node.setAttribute("data-ordering", "");
+      }
+    });
     // Clear sorting if disabled
     if (newOrdering === "disabled") {
       this._lastChecked = null; // Reset the last checked input
       input.checked = false; // Uncheck the button
       this._filterTextBox.value = ""; // Clear the text filter box
       this._clearSorting(); // Reset sorting to default or disabled state
+  
+  
     } else {
       input.checked = input !== this._lastChecked; // Handle checking the radio
       this._lastChecked = input.checked ? input : null;
@@ -169,7 +175,7 @@ export class SortingManager {
         void displayGitHubIssues(option as Sorting, { ordering: newOrdering });
       } catch (error) {
         renderErrorCatch(error as ErrorEvent);
-        // load from network in the background
+      // load from network in the background
     // const fetchedPreviews = await fetchIssuePreviews();
     // const cachedTasks = taskManager.getTasks();
     // const updatedCachedIssues = verifyGitHubIssueState(cachedTasks, fetchedPreviews);
