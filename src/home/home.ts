@@ -3,6 +3,7 @@ import { authentication } from "./authentication";
 import { displayGitHubIssues } from "./fetch-github/fetch-and-display-previews";
 import { postLoadUpdateIssues } from "./fetch-github/fetch-issues-full";
 import { readyToolbar } from "./ready-toolbar";
+import { initiateReferralCodeTracking } from "./register-referral";
 import { renderServiceMessage } from "./render-service-message";
 import { renderErrorInModal } from "./rendering/display-popup-modal";
 import { loadIssueFromUrl } from "./rendering/render-github-issues";
@@ -19,6 +20,7 @@ window.addEventListener("unhandledrejection", (event: PromiseRejectionEvent) => 
   event.preventDefault();
 });
 
+initiateReferralCodeTracking();
 renderGitRevision();
 generateSortingToolbar();
 renderServiceMessage();
