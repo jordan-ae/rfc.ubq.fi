@@ -114,7 +114,7 @@ export class SortingManager {
     input.setAttribute("data-ordering", ordering);
     // instantly load from cache
     try {
-      void displayGitHubIssues(option as Sorting, { ordering });
+      void displayGitHubIssues({ sorting: option as Sorting, options: { ordering }});
     } catch (error) {
       renderErrorCatch(error as ErrorEvent);
     }
