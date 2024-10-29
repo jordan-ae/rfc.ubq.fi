@@ -163,7 +163,7 @@ export class SortingManager {
 
       // Apply the sorting based on the new state (normal or reverse)
       try {
-        void displayGitHubIssues(option as Sorting, { ordering: newOrdering });
+        void displayGitHubIssues({ sorting: option as Sorting, options: { ordering: newOrdering } });
       } catch (error) {
         renderErrorCatch(error as ErrorEvent);
       }
