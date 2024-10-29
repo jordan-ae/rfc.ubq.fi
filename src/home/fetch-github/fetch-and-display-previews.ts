@@ -61,12 +61,20 @@ function filterIssuesByOrganization(issues: GitHubIssue[]): GitHubIssue[] {
 }
 
 // checks the cache's integrity, sorts issues, checks Directory/Proposals toggle, renders them and applies avatars
-export async function displayGitHubIssues(sorting?: Sorting, options = { ordering: "normal" }) {
+export async function displayGitHubIssues({
+  sorting,
+  options = { ordering: "normal" },
+  skipAnimation = false,
+}: {
+  sorting?: Sorting;
+  options?: { ordering: string };
+  skipAnimation?: boolean;
+} = {}) {
   await checkCacheIntegrityAndSyncTasks();
   const cachedTasks = taskManager.getTasks();
   const sortedIssues = sortIssuesController(cachedTasks, sorting, options);
   let sortedAndFiltered = sortedIssues.filter(getProposalsOnlyFilter(isProposalOnlyViewer));
   sortedAndFiltered = filterIssuesByOrganization(sortedAndFiltered);
-  renderGitHubIssues(sortedAndFiltered);
+  renderGitHubIssues(sortedAndFiltered, skipAnimation);
   applyAvatarsToIssues();
 }

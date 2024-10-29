@@ -1,4 +1,4 @@
-const cacheName = "pwacache-v3"; // Increment this when files change
+const cacheName = "pwacache-v4"; // Increment this when files change
 const urlsToCache = [
   "/",
   "/index.html",
@@ -43,26 +43,12 @@ self.addEventListener("activate", (event) => {
   self.clients.claim(); // Take control of all pages immediately
 });
 
-// Fetch event: Respond from cache or network
+// Fetch event: Cache first approach but update cache anyways
 self.addEventListener("fetch", (event) => {
   const url = new URL(event.request.url);
 
-  // Network-first strategy for index.html and dynamic routes
-  if (url.origin === location.origin && !urlsToCache.includes(url.pathname)) {
-    event.respondWith(
-      fetch(event.request)
-        .then((networkResponse) => {
-          // Update the cache with the latest version of index.html
-          return caches.open(cacheName).then((cache) => {
-            cache.put(event.request, networkResponse.clone());
-            return networkResponse;
-          });
-        })
-        .catch(() => {
-          // Fallback to the cached version if the network is unavailable
-          return caches.match("/index.html");
-        })
-    );
+  // Ignore non-HTTP(S) requests (like 'chrome-extension://')
+  if (url.protocol !== "http:" && url.protocol !== "https:") {
     return;
   }
 
@@ -74,17 +60,29 @@ self.addEventListener("fetch", (event) => {
 
   event.respondWith(
     caches.match(event.request).then((cachedResponse) => {
-      if (cachedResponse) {
-        return cachedResponse;
-      }
-      return fetch(event.request)
+      const fetchPromise = fetch(event.request)
         .then((networkResponse) => {
+          // Clone the network response to avoid using the body twice
+          const responseClone = networkResponse.clone();
+
+          // If the network response is valid, update the cache
+          if (networkResponse.ok) {
+            caches.open(cacheName).then((cache) =>
+              cache.put(event.request, responseClone)
+            );
+          }
           return networkResponse;
         })
         .catch((error) => {
           console.error("[Service Worker] Network request failed:", error);
-          return null;
+          return cachedResponse || new Response("Offline content unavailable", {
+            status: 503,
+            statusText: "Service Unavailable",
+          });
         });
+
+      // Serve from cache first, but update the cache in the background
+      return cachedResponse || fetchPromise;
     })
   );
 });
