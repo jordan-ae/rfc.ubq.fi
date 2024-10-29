@@ -23,7 +23,7 @@ export async function postLoadUpdateIssues() {
       await saveIssuesToCache(cachedIssues, fetchedIssues); // this handles stale and new issues
       await taskManager.syncTasks();
       if (cachedIssues) {
-        void displayGitHubIssues({skipAnimation: true}); // if there were cached issues skip animation
+        void displayGitHubIssues({ skipAnimation: true }); // if there were cached issues skip animation
       } else {
         void displayGitHubIssues(); // if it's first time loading keep animation
       }
