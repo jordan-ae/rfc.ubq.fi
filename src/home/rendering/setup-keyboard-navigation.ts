@@ -105,7 +105,7 @@ function keyDownHandler() {
         if (issueId) {
           const gitHubIssue = taskManager.getGitHubIssueById(parseInt(issueId, 10));
           if (gitHubIssue) {
-            viewIssueDetails(gitHubIssue);
+            void viewIssueDetails(gitHubIssue);
           }
         }
       }
