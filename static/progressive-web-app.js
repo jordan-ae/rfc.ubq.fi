@@ -73,7 +73,6 @@ self.addEventListener("fetch", (event) => {
               const responseClone = networkResponse.clone();
               const cache = await caches.open(cacheName);
               await cache.put(event.request, responseClone);
-              console.log("[Service Worker] Cache updated:", event.request.url);
             }
             return networkResponse;
           })
