@@ -13,6 +13,7 @@ export class SortingManager {
 
   constructor(filtersId: string, sortingOptions: readonly string[], instanceId: string) {
     const filters = document.getElementById(filtersId);
+    
     if (!filters) throw new Error(`${filtersId} not found`);
     this._toolBarFilters = filters;
     this._instanceId = instanceId;
@@ -50,21 +51,38 @@ export class SortingManager {
     textBox.value = searchQuery;
 
     const issuesContainer = document.getElementById("issues-container") as HTMLDivElement;
-
-    function filterIssues() {
+    
+    
+    const filterIssues = () => {
       try {
-        const filterText = textBox.value.toLowerCase();
+        const filterText = textBox.value;
         const issues = Array.from(issuesContainer.children) as HTMLDivElement[];
+        
+        // Get all issue IDs
+        const issueIds = issues
+          .map(issue => issue.children[0].getAttribute("data-issue-id"))
+          .filter((id): id is string => id !== null)
+          .map(id => parseInt(id));
+    
+        // Get visibility results
+        const searchResults = taskManager.issueSearcher.search(filterText, issueIds);
+    
+        // Update DOM
         issues.forEach((issue) => {
           const issueId = issue.children[0].getAttribute("data-issue-id");
-          issue.classList.add("active");
           if (!issueId) return;
-          const gitHubIssue = taskManager.getGitHubIssueById(parseInt(issueId));
-          if (!gitHubIssue) return;
-          const searchableProperties = ["title", "body", "number", "html_url"] as const;
-          const searchableStrings = searchableProperties.map((prop) => gitHubIssue[prop]?.toString().toLowerCase());
-          const isVisible = searchableStrings.some((str) => str?.includes(filterText));
-          issue.style.display = isVisible ? "block" : "none";
+          
+          const result = searchResults.get(parseInt(issueId));
+          if (!result) return;
+    
+          issue.classList.add("active");
+          issue.style.display = result.visible ? "block" : "none";
+    
+          console.log(issue)
+
+          if (result.score !== undefined) {
+            issue.setAttribute('data-relevance-score', result.score.toFixed(3));
+          }
         });
       } catch (error) {
         return renderErrorInModal(error as Error);
