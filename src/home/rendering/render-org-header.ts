@@ -14,10 +14,8 @@ export function renderOrgHeaderLabel(orgName: string): void {
     const img = document.createElement("img");
     img.src = logoUrl;
     img.alt = `${orgName} Logo`;
+    console.log("oi");
     img.id = "logo";
-    img.style.width = "24.469px"; // same size as default SVG
-    img.style.height = "28px";
-    img.style.objectFit = "contain";
 
     // Replace the existing SVG with the new image
     const svgLogo = brandingDiv.querySelector("svg#logo");
