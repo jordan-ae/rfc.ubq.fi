@@ -53,11 +53,19 @@ function filterIssuesByOrganization(issues: GitHubIssue[]): GitHubIssue[] {
   //  if there is no organization name in the URL, return all issues
   if (!urlOrgName) return issues;
 
-  // compare URL organization name with the organization name in the issue's repository URL
-  return issues.filter((issue) => {
+  // filter issues by matching the URL organization name with the issue's organization name
+  const filteredIssues = issues.filter((issue) => {
     const [issueOrgName] = issue.repository_url.split("/").slice(-2);
     return issueOrgName === urlOrgName;
   });
+
+  // if no issues match the organization, redirect to home
+  if (filteredIssues.length === 0) {
+    console.log(`No issues found for organization "${urlOrgName}". Redirecting to the home page.`);
+    window.location.href = "/";
+  }
+
+  return filteredIssues;
 }
 
 // checks the cache's integrity, sorts issues, checks Directory/Proposals toggle, renders them and applies avatars
