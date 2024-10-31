@@ -1,6 +1,7 @@
 import { GitHubIssue } from "../github-types";
 import { taskManager } from "../home";
 import { applyAvatarsToIssues, renderGitHubIssues } from "../rendering/render-github-issues";
+import { renderOrgHeaderLabel } from "../rendering/render-org-header";
 import { closeModal } from "../rendering/render-preview-modal";
 import { Sorting } from "../sorting/generate-sorting-buttons";
 import { sortIssuesController } from "../sorting/sort-issues-controller";
@@ -64,6 +65,8 @@ function filterIssuesByOrganization(issues: GitHubIssue[]): GitHubIssue[] {
     console.log(`No issues found for organization "${urlOrgName}". Redirecting to the home page.`);
     window.location.href = "/";
   }
+
+  renderOrgHeaderLabel(urlOrgName);
 
   return filteredIssues;
 }

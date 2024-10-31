@@ -12,7 +12,7 @@ const urlsToCache = [
 ];
 
 // Install event (caches all necessary files)
-self.addEventListener("install", (event) => {
+self.addEventListener("install", async (event) => {
   event.waitUntil(
     (async () => {
       try {
@@ -28,7 +28,7 @@ self.addEventListener("install", (event) => {
 });
 
 // Activate event (deletes old caches when updated)
-self.addEventListener("activate", (event) => {
+self.addEventListener("activate", async (event) => {
   event.waitUntil(
     (async () => {
       try {
@@ -64,36 +64,43 @@ self.addEventListener("fetch", (event) => {
 
   event.respondWith(
     (async () => {
-      try {
-        const cachedResponse = await caches.match(event.request);
+      const cachedResponse = await caches.match(event.request);
 
-        const fetchPromise = fetch(event.request)
-          .then(async (networkResponse) => {
-            if (networkResponse.ok) {
-              const responseClone = networkResponse.clone();
-              const cache = await caches.open(cacheName);
-              await cache.put(event.request, responseClone);
+      if (cachedResponse) {
+        // Start a network fetch in the background to update the cache, this will return early from cache
+        // but the fetch will still happen in the background
+        event.waitUntil(
+          (async () => {
+            try {
+              const networkResponse = await fetch(event.request);
+              if (networkResponse.ok) {
+                const responseClone = networkResponse.clone();
+                const cache = await caches.open(cacheName);
+                await cache.put(event.request, responseClone);
+              }
+            } catch (error) {
+              console.error("[Service Worker] Background cache update failed:", error);
             }
-            return networkResponse;
-          })
-          .catch((error) => {
-            console.error("[Service Worker] Network request failed:", error);
-            return (
-              cachedResponse ||
-              new Response("Offline content unavailable", {
-                status: 503,
-                statusText: "Service Unavailable",
-              })
-            );
+          })()
+        );
+        return cachedResponse;
+      } else {
+        // Attempt to fetch from the network if no cache is available
+        try {
+          const networkResponse = await fetch(event.request);
+          if (networkResponse.ok) {
+            const responseClone = networkResponse.clone();
+            const cache = await caches.open(cacheName);
+            await cache.put(event.request, responseClone);
+          }
+          return networkResponse;
+        } catch (error) {
+          console.error("[Service Worker] Fetch failed, and no cache is available:", error);
+          return new Response("An error occurred", {
+            status: 500,
+            statusText: "Internal Server Error",
           });
-
-        return cachedResponse || (await fetchPromise);
-      } catch (error) {
-        console.error("[Service Worker] Error handling fetch:", error);
-        return new Response("An error occurred", {
-          status: 500,
-          statusText: "Internal Server Error",
-        });
+        }
       }
     })()
   );
