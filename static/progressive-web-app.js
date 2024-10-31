@@ -12,7 +12,7 @@ const urlsToCache = [
 ];
 
 // Install event (caches all necessary files)
-self.addEventListener("install", (event) => {
+self.addEventListener("install", async (event) => {
   event.waitUntil(
     (async () => {
       try {
@@ -28,7 +28,7 @@ self.addEventListener("install", (event) => {
 });
 
 // Activate event (deletes old caches when updated)
-self.addEventListener("activate", (event) => {
+self.addEventListener("activate", async (event) => {
   event.waitUntil(
     (async () => {
       try {
