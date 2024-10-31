@@ -6,7 +6,6 @@ export interface SearchResult {
     bodyMatches: string[];
     labelMatches: string[];
     numberMatch: boolean;
-    similarityScore: number;
     fuzzyMatches: Array<{
       original: string;
       matched: string;
@@ -20,7 +19,6 @@ export interface SearchWeights {
   body: number;
   fuzzy: number;
   meta: number;
-  vector: number;
 }
 
 export interface SearchConfig {

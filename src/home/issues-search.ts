@@ -1,16 +1,14 @@
 import { GitHubIssue } from "./github-types";
 import { TaskManager } from "./task-manager";
 import { SearchResult, SearchWeights, SearchConfig } from "./types/search-types";
-import { VectorSearch } from "./search/vector-search";
 import { SearchScorer } from "./search/search-scorer";
 
 export class IssueSearch {
   private readonly _weights: SearchWeights = {
-    title: 0.3,
-    body: 0.2,
-    fuzzy: 0.2,
-    meta: 0.1,
-    vector: 0.2
+    title: 0.375,
+    body: 0.25,
+    fuzzy: 0.25,
+    meta: 0.125
   };
   
   private readonly _config: SearchConfig = {
@@ -19,20 +17,19 @@ export class IssueSearch {
     fuzzyMatchWeight: 0.7
   };
 
-  private readonly _vectorSearch: VectorSearch;
   private readonly _searchScorer: SearchScorer;
+  private _searchableIssues: Map<number, string> = new Map();
 
   constructor(private _taskManager: TaskManager) {
-    this._vectorSearch = new VectorSearch();
     this._searchScorer = new SearchScorer(this._config);
   }
 
-  public async initializeVectors(issues: GitHubIssue[]) {
-    const documents = issues.map(issue => ({
-      id: issue.id,
-      content: this._getSearchableContent(issue)
-    }));
-    await this._vectorSearch.initializeVectors(documents);
+  public async initializeIssues(issues: GitHubIssue[]) {
+    this._searchableIssues.clear();
+    issues.forEach(issue => {
+      const searchableContent = this._getSearchableContent(issue);
+      this._searchableIssues.set(issue.id, searchableContent);
+    });
   }
 
   public search(searchText: string, issueIds: number[]): Map<number, SearchResult> {
@@ -46,14 +43,14 @@ export class IssueSearch {
 
     const searchTerms = this._preprocessSearchTerms(filterText);
 
-    issueIds.forEach(async issueId => {
+    issueIds.forEach(issueId => {
       const issue = this._taskManager.getGitHubIssueById(issueId);
       if (!issue) {
         results.set(issueId, this._createEmptyResult(false));
         return;
       }
 
-      const result = await this._calculateIssueRelevance(issue, searchTerms);
+      const result = this._calculateIssueRelevance(issue, searchTerms);
       results.set(issueId, result);
     });
 
@@ -61,16 +58,15 @@ export class IssueSearch {
     return results;
   }
 
-  private async _calculateIssueRelevance(
+  private _calculateIssueRelevance(
     issue: GitHubIssue,
     searchTerms: string[]
-  ): Promise<SearchResult> {
+  ): SearchResult {
     const matchDetails = {
       titleMatches: [] as string[],
       bodyMatches: [] as string[],
       labelMatches: [] as string[],
       numberMatch: false,
-      similarityScore: 0,
       fuzzyMatches: [] as Array<{
         original: string;
         matched: string;
@@ -78,18 +74,15 @@ export class IssueSearch {
       }>
     };
 
-    const searchableContent = this._getSearchableContent(issue);
+    const searchableContent = this._searchableIssues.get(issue.id) || this._getSearchableContent(issue);
 
     // Calculate individual scores
     const scores = {
       title: this._searchScorer.calculateTitleScore(issue, searchTerms, matchDetails),
       body: this._searchScorer.calculateBodyScore(issue, searchTerms, matchDetails),
       fuzzy: this._searchScorer.calculateFuzzyScore(searchableContent, searchTerms, matchDetails),
-      meta: this._searchScorer.calculateMetaScore(issue, searchTerms, matchDetails),
-      vector: await this._vectorSearch.getSimilarityScore(issue.id, searchTerms)
+      meta: this._searchScorer.calculateMetaScore(issue, searchTerms, matchDetails)
     };
-
-    matchDetails.similarityScore = scores.vector;
 
     // Calculate weighted total score
     const totalScore = Object.entries(scores).reduce((total, [key, score]) => {
@@ -148,7 +141,6 @@ export class IssueSearch {
         bodyMatches: [],
         labelMatches: [],
         numberMatch: false,
-        similarityScore: 0,
         fuzzyMatches: []
       }
     };

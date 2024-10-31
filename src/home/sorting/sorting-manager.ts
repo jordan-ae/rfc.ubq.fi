@@ -71,15 +71,10 @@ export class SortingManager {
         issues.forEach((issue) => {
           const issueId = issue.children[0].getAttribute("data-issue-id");
           if (!issueId) return;
-          
           const result = searchResults.get(parseInt(issueId));
           if (!result) return;
-    
           issue.classList.add("active");
           issue.style.display = result.visible ? "block" : "none";
-    
-          console.log(issue)
-
           if (result.score !== undefined) {
             issue.setAttribute('data-relevance-score', result.score.toFixed(3));
           }

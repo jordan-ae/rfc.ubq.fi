@@ -21,8 +21,8 @@ export class TaskManager {
     this._tasks = issues;
     void this._writeToStorage(issues);
 
-    // Sync the tasks to the data store
-    await this.issueSearcher.initializeVectors(issues)
+    // Initialize issues for search operations
+    await this.issueSearcher.initializeIssues(issues);
 
     await fetchAvatars();
   }
