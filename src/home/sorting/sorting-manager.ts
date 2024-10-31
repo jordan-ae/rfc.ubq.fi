@@ -13,7 +13,7 @@ export class SortingManager {
 
   constructor(filtersId: string, sortingOptions: readonly string[], instanceId: string) {
     const filters = document.getElementById(filtersId);
-    
+
     if (!filters) throw new Error(`${filtersId} not found`);
     this._toolBarFilters = filters;
     this._instanceId = instanceId;
@@ -51,22 +51,21 @@ export class SortingManager {
     textBox.value = searchQuery;
 
     const issuesContainer = document.getElementById("issues-container") as HTMLDivElement;
-    
-    
+
     const filterIssues = () => {
       try {
         const filterText = textBox.value;
         const issues = Array.from(issuesContainer.children) as HTMLDivElement[];
-        
+
         // Get all issue IDs
         const issueIds = issues
-          .map(issue => issue.children[0].getAttribute("data-issue-id"))
+          .map((issue) => issue.children[0].getAttribute("data-issue-id"))
           .filter((id): id is string => id !== null)
-          .map(id => parseInt(id));
-    
+          .map((id) => parseInt(id));
+
         // Get visibility results
         const searchResults = taskManager.issueSearcher.search(filterText, issueIds);
-    
+
         // Update DOM
         issues.forEach((issue) => {
           const issueId = issue.children[0].getAttribute("data-issue-id");
@@ -76,7 +75,7 @@ export class SortingManager {
           issue.classList.add("active");
           issue.style.display = result.visible ? "block" : "none";
           if (result.score !== undefined) {
-            issue.setAttribute('data-relevance-score', result.score.toFixed(3));
+            issue.setAttribute("data-relevance-score", result.score.toFixed(3));
           }
         });
       } catch (error) {

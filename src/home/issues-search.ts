@@ -8,13 +8,13 @@ export class IssueSearch {
     title: 0.375,
     body: 0.25,
     fuzzy: 0.25,
-    meta: 0.125
+    meta: 0.125,
   };
-  
+
   private readonly _config: SearchConfig = {
     fuzzySearchThreshold: 0.7,
     exactMatchBonus: 1.0,
-    fuzzyMatchWeight: 0.7
+    fuzzyMatchWeight: 0.7,
   };
 
   private readonly _searchScorer: SearchScorer;
@@ -26,7 +26,7 @@ export class IssueSearch {
 
   public async initializeIssues(issues: GitHubIssue[]) {
     this._searchableIssues.clear();
-    issues.forEach(issue => {
+    issues.forEach((issue) => {
       const searchableContent = this._getSearchableContent(issue);
       this._searchableIssues.set(issue.id, searchableContent);
     });
@@ -37,13 +37,13 @@ export class IssueSearch {
     const results = new Map<number, SearchResult>();
 
     if (!filterText) {
-      issueIds.forEach(id => results.set(id, this._createEmptyResult()));
+      issueIds.forEach((id) => results.set(id, this._createEmptyResult()));
       return results;
     }
 
     const searchTerms = this._preprocessSearchTerms(filterText);
 
-    issueIds.forEach(issueId => {
+    issueIds.forEach((issueId) => {
       const issue = this._taskManager.getGitHubIssueById(issueId);
       if (!issue) {
         results.set(issueId, this._createEmptyResult(false));
@@ -58,10 +58,7 @@ export class IssueSearch {
     return results;
   }
 
-  private _calculateIssueRelevance(
-    issue: GitHubIssue,
-    searchTerms: string[]
-  ): SearchResult {
+  private _calculateIssueRelevance(issue: GitHubIssue, searchTerms: string[]): SearchResult {
     const matchDetails = {
       titleMatches: [] as string[],
       bodyMatches: [] as string[],
@@ -71,7 +68,7 @@ export class IssueSearch {
         original: string;
         matched: string;
         score: number;
-      }>
+      }>,
     };
 
     const searchableContent = this._searchableIssues.get(issue.id) || this._getSearchableContent(issue);
@@ -81,7 +78,7 @@ export class IssueSearch {
       title: this._searchScorer.calculateTitleScore(issue, searchTerms, matchDetails),
       body: this._searchScorer.calculateBodyScore(issue, searchTerms, matchDetails),
       fuzzy: this._searchScorer.calculateFuzzyScore(searchableContent, searchTerms, matchDetails),
-      meta: this._searchScorer.calculateMetaScore(issue, searchTerms, matchDetails)
+      meta: this._searchScorer.calculateMetaScore(issue, searchTerms, matchDetails),
     };
 
     // Calculate weighted total score
@@ -94,14 +91,14 @@ export class IssueSearch {
     return {
       visible: isVisible,
       score: isVisible ? totalScore : 0,
-      matchDetails
+      matchDetails,
     };
   }
 
   private _calculateNDCGScore(results: Map<number, SearchResult>): number {
     const scores = Array.from(results.values())
-      .filter(r => r.visible)
-      .map(r => r.score)
+      .filter((r) => r.visible)
+      .map((r) => r.score)
       .sort((a, b) => b - a);
 
     if (scores.length === 0) return 0;
@@ -123,13 +120,11 @@ export class IssueSearch {
     return searchText
       .split(/\s+/)
       .filter(Boolean)
-      .map(term => term.toLowerCase());
+      .map((term) => term.toLowerCase());
   }
 
   private _getSearchableContent(issue: GitHubIssue): string {
-    return `${issue.title} ${issue.body || ''} ${
-      issue.labels?.map(l => typeof l === 'object' && l.name ? l.name : '').join(' ') || ''
-    }`.toLowerCase();
+    return `${issue.title} ${issue.body || ""} ${issue.labels?.map((l) => (typeof l === "object" && l.name ? l.name : "")).join(" ") || ""}`.toLowerCase();
   }
 
   private _createEmptyResult(visible: boolean = true): SearchResult {
@@ -141,8 +136,8 @@ export class IssueSearch {
         bodyMatches: [],
         labelMatches: [],
         numberMatch: false,
-        fuzzyMatches: []
-      }
+        fuzzyMatches: [],
+      },
     };
   }
 }
