@@ -56,28 +56,44 @@ export class SortingManager {
       try {
         const filterText = textBox.value;
         const issues = Array.from(issuesContainer.children) as HTMLDivElement[];
+        
+        // Reset any active sort buttons when searching
+        if (filterText) {
+          this._resetSortButtons();
+        }
 
-        // Get all issue IDs
+        // Get issue IDs and search results
         const issueIds = issues
           .map((issue) => issue.children[0].getAttribute("data-issue-id"))
           .filter((id): id is string => id !== null)
           .map((id) => parseInt(id));
 
-        // Get visibility results
         const searchResults = taskManager.issueSearcher.search(filterText, issueIds);
 
-        // Update DOM
+        // Update visibility and scores
         issues.forEach((issue) => {
           const issueId = issue.children[0].getAttribute("data-issue-id");
           if (!issueId) return;
+          
           const result = searchResults.get(parseInt(issueId));
           if (!result) return;
+          
           issue.classList.add("active");
           issue.style.display = result.visible ? "block" : "none";
+          
           if (result.score !== undefined) {
             issue.setAttribute("data-relevance-score", result.score.toFixed(3));
           }
         });
+
+        // If there's a search term, sort by relevance
+        if (filterText) {
+            issues.sort((a, b) => {
+            const scoreA = parseFloat(a.getAttribute("data-relevance-score") || "0");
+            const scoreB = parseFloat(b.getAttribute("data-relevance-score") || "0");
+            return scoreB - scoreA; // Sort in descending order of relevance score
+            }).forEach((issue) => issuesContainer.appendChild(issue));
+        }
       } catch (error) {
         return renderErrorInModal(error as Error);
       }
@@ -96,12 +112,26 @@ export class SortingManager {
       const filterText = textBox.value;
       // Update the URL with the search parameter
       const newURL = new URL(window.location.href);
-      newURL.searchParams.set("search", filterText);
+      if (filterText) {
+        newURL.searchParams.set("search", filterText);
+      } else {
+        newURL.searchParams.delete("search");
+      }
       window.history.replaceState({}, "", newURL.toString());
-      filterIssues(); // Run the filter function immediately on input
+      filterIssues();
     });
 
     return textBox;
+  }
+
+  private _resetSortButtons() {
+    this._sortingButtons.querySelectorAll('input[type="radio"]').forEach((input) => {
+      if (input instanceof HTMLInputElement) {
+        input.checked = false;
+        input.setAttribute("data-ordering", "");
+      }
+    });
+    this._lastChecked = null;
   }
 
   private _generateSortingButtons(sortingOptions: readonly string[]) {
@@ -158,6 +188,19 @@ export class SortingManager {
 
     // Apply the new ordering state
     input.setAttribute("data-ordering", newOrdering);
+    input.parentElement?.childNodes.forEach((node) => {
+      if (node instanceof HTMLInputElement) {
+        node.setAttribute("data-ordering", "");
+      }
+    });
+
+    // Clear search when applying a different sort
+    this._filterTextBox.value = "";
+    const newURL = new URL(window.location.href);
+    newURL.searchParams.delete("search");
+    window.history.replaceState({}, "", newURL.toString());
+
+    // Reset other buttons
     input.parentElement?.childNodes.forEach((node) => {
       if (node instanceof HTMLInputElement) {
         node.setAttribute("data-ordering", "");
