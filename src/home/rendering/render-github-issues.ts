@@ -167,8 +167,8 @@ function updateUrlWithIssueId(issueID: number) {
     newURL.searchParams.set("proposal", "true");
   }
 
-  // Push to history
-  window.history.pushState({ issueID }, "", newURL.toString());
+  // Set issue in URL
+  window.history.replaceState({ issueID }, "", newURL.toString());
 }
 
 // Opens the preview modal if a URL contains an issueID
@@ -197,11 +197,6 @@ export function loadIssueFromUrl() {
 
   viewIssueDetails(issue);
 }
-
-// This ensure previews load for the URL
-window.addEventListener("popstate", () => {
-  location.reload();
-});
 
 export function applyAvatarsToIssues() {
   const container = taskManager.getContainer();
