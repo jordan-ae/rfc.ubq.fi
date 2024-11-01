@@ -35,7 +35,7 @@ export class IssueSearch {
   public search(searchText: string, issueIds: number[]): Map<number, SearchResult> {
     let filterText = searchText.toLowerCase().trim();
     const results = new Map<number, SearchResult>();
-    const isFuzzySearchEnabled = filterText.startsWith('?');
+    const isFuzzySearchEnabled = filterText.startsWith("?");
 
     if (isFuzzySearchEnabled) {
       filterText = filterText.slice(1).trim();
@@ -131,7 +131,7 @@ export class IssueSearch {
   private _getSearchableContent(issue: GitHubIssue): string {
     // Remove URLs from the content
     const removeUrls = (text: string): string => {
-      return text.replace(/https?:\/\/[^\s]+/g, '');
+      return text.replace(/(?:https?:\/\/|http?:\/\/|www\.)[^\s]+/g, "");
     };
 
     const title = issue.title;
