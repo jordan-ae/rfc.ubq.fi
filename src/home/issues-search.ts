@@ -33,8 +33,13 @@ export class IssueSearch {
   }
 
   public search(searchText: string, issueIds: number[]): Map<number, SearchResult> {
-    const filterText = searchText.toLowerCase().trim();
+    let filterText = searchText.toLowerCase().trim();
     const results = new Map<number, SearchResult>();
+    const isFuzzySearchEnabled = filterText.startsWith('?');
+
+    if (isFuzzySearchEnabled) {
+      filterText = filterText.slice(1).trim();
+    }
 
     if (!filterText) {
       issueIds.forEach((id) => results.set(id, this._createEmptyResult()));
@@ -50,7 +55,7 @@ export class IssueSearch {
         return;
       }
 
-      const result = this._calculateIssueRelevance(issue, searchTerms);
+      const result = this._calculateIssueRelevance(issue, searchTerms, isFuzzySearchEnabled);
       results.set(issueId, result);
     });
 
@@ -58,7 +63,7 @@ export class IssueSearch {
     return results;
   }
 
-  private _calculateIssueRelevance(issue: GitHubIssue, searchTerms: string[]): SearchResult {
+  private _calculateIssueRelevance(issue: GitHubIssue, searchTerms: string[], enableFuzzy: boolean): SearchResult {
     const matchDetails = {
       titleMatches: [] as string[],
       bodyMatches: [] as string[],
@@ -77,7 +82,7 @@ export class IssueSearch {
     const scores = {
       title: this._searchScorer.calculateTitleScore(issue, searchTerms, matchDetails),
       body: this._searchScorer.calculateBodyScore(issue, searchTerms, matchDetails),
-      fuzzy: this._searchScorer.calculateFuzzyScore(searchableContent, searchTerms, matchDetails),
+      fuzzy: enableFuzzy ? this._searchScorer.calculateFuzzyScore(searchableContent, searchTerms, matchDetails) : 0,
       meta: this._searchScorer.calculateMetaScore(issue, searchTerms, matchDetails),
     };
 
@@ -124,7 +129,16 @@ export class IssueSearch {
   }
 
   private _getSearchableContent(issue: GitHubIssue): string {
-    return `${issue.title} ${issue.body || ""} ${issue.labels?.map((l) => (typeof l === "object" && l.name ? l.name : "")).join(" ") || ""}`.toLowerCase();
+    // Remove URLs from the content
+    const removeUrls = (text: string): string => {
+      return text.replace(/https?:\/\/[^\s]+/g, '');
+    };
+
+    const title = issue.title;
+    const body = removeUrls(issue.body || "");
+    const labels = issue.labels?.map((l) => (typeof l === "object" && l.name ? l.name : "")).join(" ") || "";
+
+    return `${title} ${body} ${labels}`.toLowerCase();
   }
 
   private _createEmptyResult(visible: boolean = true): SearchResult {

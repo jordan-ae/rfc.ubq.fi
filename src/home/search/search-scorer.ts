@@ -12,14 +12,21 @@ export class SearchScorer {
     ): number {
         let score = 0;
         const title = issue.title.toLowerCase();
+        const words = title.split(/\s+/);
 
         searchTerms.forEach(term => {
             if (title.includes(term)) {
                 matchDetails.titleMatches.push(term);
                 score += this._config.exactMatchBonus;
-                if (title.startsWith(term)) {
-                    score += 0.5;
-                }
+
+                // Apply exponential boost for word beginnings
+                words.forEach(word => {
+                    if (word.startsWith(term)) {
+                        // e^(-x) where x is the position of the match relative to word length
+                        const positionBoost = Math.exp(-term.length / word.length);
+                        score += positionBoost;
+                    }
+                });
             }
         });
 
@@ -36,13 +43,23 @@ export class SearchScorer {
     ): number {
         let score = 0;
         const body = (issue.body || '').toLowerCase();
+        const words = body.split(/\s+/);
 
         searchTerms.forEach(term => {
-            const matches = body.match(new RegExp(term, 'gi')) || [];
-            if (matches.length > 0) {
+            let termScore = 0;
+            words.forEach(word => {
+                if (word.startsWith(term)) {
+                    // Apply exponential boost for word beginnings
+                    const positionBoost = Math.exp(-term.length / word.length);
+                    termScore += positionBoost;
+                }
+            });
+
+            if (termScore > 0) {
                 matchDetails.bodyMatches.push(term);
-                score += Math.min(matches.length / 2, 1);
+                score += Math.min(termScore, 1);
             }
+
             const codeBlockMatches = body.match(/```[\s\S]*?```/g) || [];
             codeBlockMatches.forEach(block => {
                 if (block.toLowerCase().includes(term)) {
@@ -67,9 +84,17 @@ export class SearchScorer {
         if (issue.labels) {
             searchTerms.forEach(term => {
                 issue.labels?.forEach(label => {
-                    if (typeof label === 'object' && label.name && label.name.toLowerCase().includes(term)) {
-                        matchDetails.labelMatches.push(label.name);
-                        score += 0.5;
+                    if (typeof label === 'object' && label.name) {
+                        const labelName = label.name.toLowerCase();
+                        if (labelName.includes(term)) {
+                            matchDetails.labelMatches.push(label.name);
+                            // Apply exponential boost for label matches at word start
+                            if (labelName.startsWith(term)) {
+                                score += 0.8;
+                            } else {
+                                score += 0.5;
+                            }
+                        }
                     }
                 });
             });
@@ -85,24 +110,44 @@ export class SearchScorer {
     ): number {
         let score = 0;
         const contentWords = this._tokenizeContent(content);
+        
         searchTerms.forEach(searchTerm => {
             let bestMatch = {
                 word: '',
-                score: 0
+                score: 0,
+                isWordStart: false
             };
+
             contentWords.forEach(word => {
                 const similarity = StringSimilarity.calculate(searchTerm, word);
-                if (similarity > this._config.fuzzySearchThreshold && similarity > bestMatch.score) {
-                    bestMatch = { word, score: similarity };
+                const isWordStart = word.startsWith(searchTerm);
+                
+                // Calculate position-based boost
+                const positionBoost = isWordStart ? Math.exp(-searchTerm.length / word.length) : 0;
+                const adjustedScore = similarity + positionBoost;
+
+                if (adjustedScore > this._config.fuzzySearchThreshold && adjustedScore > bestMatch.score) {
+                    bestMatch = { 
+                        word, 
+                        score: adjustedScore,
+                        isWordStart 
+                    };
                 }
             });
+
             if (bestMatch.score > 0) {
                 matchDetails.fuzzyMatches.push({
                     original: searchTerm,
                     matched: bestMatch.word,
                     score: bestMatch.score
                 });
-                score += bestMatch.score * this._config.fuzzyMatchWeight;
+
+                // Apply exponential weight for word-start matches
+                const finalScore = bestMatch.isWordStart 
+                    ? bestMatch.score * Math.exp(this._config.fuzzyMatchWeight)
+                    : bestMatch.score * this._config.fuzzyMatchWeight;
+                    
+                score += finalScore;
             }
         });
 
