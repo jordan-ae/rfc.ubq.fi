@@ -28,7 +28,7 @@ export class SortingManager {
     const textBox = document.createElement("input");
     textBox.type = "text";
     textBox.id = `filter-${this._instanceId}`;
-    textBox.placeholder = "Text Filter";
+    textBox.placeholder = "Search";
 
     document.addEventListener("keydown", (event) => {
       if ((event.metaKey || event.ctrlKey) && event.key === "f") {

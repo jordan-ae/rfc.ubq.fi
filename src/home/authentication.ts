@@ -6,14 +6,14 @@ import { displayGitHubUserInformation } from "./rendering/display-github-user-in
 import { renderGitHubLoginButton } from "./rendering/render-github-login-button";
 
 export async function authentication() {
-  const accessToken = await getGitHubAccessToken();
-  if (!accessToken) {
-    renderGitHubLoginButton();
-  }
 
   const gitHubUser: null | GitHubUser = await getGitHubUser();
   if (gitHubUser) {
     trackDevRelReferral(gitHubUser.login + "|" + gitHubUser.id);
     await displayGitHubUserInformation(gitHubUser);
+  }
+  const accessToken = await getGitHubAccessToken();
+  if (!accessToken) {
+    renderGitHubLoginButton();
   }
 }

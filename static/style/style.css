@@ -69,7 +69,7 @@
     max-width: 640px;
     scrollbar-width: none;
     -ms-overflow-style: none;
-    padding: 56px 0;
+    padding: 50px 0;
     transition: 0.25s all cubic-bezier(0, 1, 1, 1);
     width: 100%;
   }
@@ -307,6 +307,7 @@
     text-transform: uppercase;
     letter-spacing: 1px;
     background-color: #80808010;
+    /* vertical-align: middle; */
   }
   button:hover {
     background-color: #80808020;
@@ -316,11 +317,11 @@
   }
   .toolbar {
     position: fixed;
-    width: calc(100vw - 8px);
+    width: 100vw;
     height: 48px;
     top: 0;
     backdrop-filter: blur(8px);
-    padding: 4px;
+    /* padding: 0 0px; */
     display: flex;
     border-bottom: 1px solid #80808020;
     -webkit-backdrop-filter: blur(8px);
@@ -329,8 +330,9 @@
   }
   #authentication {
     position: absolute;
-    right: 8px;
+    right: 0;
     cursor: pointer;
+    vertical-align: middle;
   }
   .toolbar > * {
     display: inline-flex;
@@ -342,13 +344,14 @@
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    margin: 0 4px;
+    /* margin: 0 4px; */
     max-height: 48px;
   }
   #authenticated > img {
-    border-radius: 50%;
-    height: 40px;
-    padding: 4px 0;
+    /* border-radius: 50%; */
+    height: 48px;
+    /* padding: 4px 0; */
+    /* border-bottom-left-radius: 50%; */
   }
   .toolbar[data-authenticated="true"] > #github-login-button {
     display: none;
@@ -543,7 +546,7 @@
   .preview-body-inner {
     padding: 16px;
     overflow: scroll;
-    max-height: calc(100vh - 208px);
+    /* max-height: calc(100vh - 208px); */
   }
   .preview-body-inner > :last-child {
     margin-bottom: 0;
@@ -555,10 +558,10 @@
     border: 1px solid #80808020;
     border-radius: 4px;
     opacity: 0;
-    top: 60px;
+    top: 54px;
     pointer-events: none;
     width: calc(100vw - 14px);
-    max-height: calc(100% - 120px);
+    /* max-height: calc(100% - 120px); */
   }
   .preview * {
     pointer-events: none;
@@ -581,7 +584,7 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 8px 16px;
+    padding: 4px 16px;
     border-bottom: 1px solid #80808020;
   }
   .preview-header > a {
@@ -610,8 +613,8 @@
     text-overflow: ellipsis;
   }
   .preview-body {
-    overflow: hidden;
-    height: calc(100% - 180px);
+    overflow: scroll;
+    max-height: calc(100vh - 156px);
     display: block;
   }
 
@@ -645,7 +648,7 @@
     width: 100%;
     height: 16px;
     text-align: center;
-    min-width: 80px;
+    /* min-width: 80px; */
   }
   .filters-container input[type="text"]::placeholder {
     font-size: 12px;
@@ -728,7 +731,7 @@
   .user-container {
     display: flex;
     align-items: center;
-    margin-right: 8px;
+    /* margin-right: 8px; */
   }
   .github-avatar-default {
     width: 48px;
