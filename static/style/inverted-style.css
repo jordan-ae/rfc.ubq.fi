@@ -14,11 +14,11 @@
   #bottom-bar {
     align-items: center;
     justify-content: center;
+    height: 72px;
   }
   #filters-bottom {
-    display: flex;
     flex-direction: column;
-    gap: 2px;
+    gap: 4px;
   }
   .labels {
     margin: 0;
@@ -95,7 +95,7 @@
     max-width: 640px;
     scrollbar-width: none;
     -ms-overflow-style: none;
-    padding: 48px 0 56px 0;
+    padding: 48px 0 72px 0;
     transition: 0.25s all cubic-bezier(0, 1, 1, 1);
     width: 100%;
   }
@@ -269,7 +269,7 @@
   }
   .labels {
     display: flex;
-    margin-left: 5px;
+    margin-left: 2px;
     justify-content: flex-end;
   }
   .partner {
@@ -652,17 +652,19 @@
   }
   .filters-container {
     flex: 1;
+    /* width: 100%; */
+    /* justify-content: normal; */
   }
   .filters-container input[type="text"] {
-    margin: 0 10px;
     padding: 4px;
     border: none;
     border-radius: 4px;
     background-color: #7f7f7f20;
-    width: 100%;
-    max-width: 500px;
     height: 16px;
     text-align: center;
+  }
+  #filter-top {
+    width: calc(100vw / 3);
   }
   .filters-container input[type="text"]::placeholder {
     font-size: 12px;
@@ -861,5 +863,63 @@
   }
   .preview-active div#mobile-modal-scrub {
     display: unset;
+  }
+  .preview {
+    position: fixed;
+    transition: 0.25s all cubic-bezier(0, 1, 1, 1);
+    max-width: 640px;
+    border: 1px solid #7f7f7f20;
+    border-radius: 4px;
+    opacity: 0;
+    top: 54px;
+    pointer-events: none;
+    /* Update height calculation to use dvh */
+    max-height: calc(100dvh - 54px - 48px - env(safe-area-inset-bottom, 0px));
+    background-color: var(--background-color-default);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    /* Enable momentum scrolling */
+    -webkit-overflow-scrolling: touch;
+    /* Prevent content from going under bottom bar */
+    margin-bottom: env(safe-area-inset-bottom, 0px);
+  }
+
+  .preview * {
+    pointer-events: none;
+  }
+
+  .preview.active * {
+    pointer-events: all;
+  }
+
+  .preview.active {
+    opacity: 1;
+    pointer-events: all;
+    transform: translateX(50%);
+    overflow: hidden;
+  }
+
+  .preview-header {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 4px 16px;
+    border-bottom: 1px solid #7f7f7f20;
+  }
+
+  .preview-body {
+    overflow-y: auto;
+    /* Update height calculation to use dvh */
+    max-height: calc(100dvh - 180px - env(safe-area-inset-bottom, 0px));
+    display: block;
+    /* Enable smooth scrolling */
+    scroll-behavior: smooth;
+    /* Enable momentum scrolling */
+    -webkit-overflow-scrolling: touch;
+    /* Prevent content from going under bottom bar */
+    /* padding-bottom: 48px; */
   }
 }
