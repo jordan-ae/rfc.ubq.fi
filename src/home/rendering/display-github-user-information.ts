@@ -1,8 +1,8 @@
 import { isOrgMemberWithoutScope } from "../getters/get-github-access-token";
 import { GitHubUser } from "../github-types";
-import { renderErrorInModal } from "./display-popup-modal";
-import { getSupabase, renderAugmentAccessButton, authenticationElement } from "./render-github-login-button";
 import { toolbar } from "../ready-toolbar";
+import { renderErrorInModal } from "./display-popup-modal";
+import { authenticationElement, getSupabase, renderAugmentAccessButton } from "./render-github-login-button";
 
 export async function displayGitHubUserInformation(gitHubUser: GitHubUser) {
   const authenticatedDivElement = document.createElement("div");
@@ -18,7 +18,6 @@ export async function displayGitHubUserInformation(gitHubUser: GitHubUser) {
     img.classList.add("github-avatar-default");
   }
   img.alt = gitHubUser.login;
-  authenticatedDivElement.appendChild(img);
 
   const divNameElement = document.createElement("div");
 
@@ -26,6 +25,8 @@ export async function displayGitHubUserInformation(gitHubUser: GitHubUser) {
   divNameElement.textContent = gitHubUser.name || gitHubUser.login;
   divNameElement.classList.add("full");
   authenticatedDivElement.appendChild(divNameElement);
+  console.trace()
+  authenticatedDivElement.appendChild(img);
 
   authenticatedDivElement.addEventListener("click", async function signOut() {
     const supabase = getSupabase();
@@ -34,7 +35,7 @@ export async function displayGitHubUserInformation(gitHubUser: GitHubUser) {
       renderErrorInModal(error, "Error logging out");
       alert("Error logging out");
     }
-    window.location.reload();
+    window.location.replace("/");
   });
 
   if (await isOrgMemberWithoutScope()) {

@@ -9,6 +9,7 @@ export class SortingManager {
   private _filterTextBox: HTMLInputElement;
   private _sortingButtons: HTMLElement;
   private _instanceId: string;
+  private _sortingState: { [key: string]: "unsorted" | "ascending" | "descending" } = {}; // Track state for each sorting option
 
   constructor(filtersId: string, sortingOptions: readonly string[], instanceId: string) {
     const filters = document.getElementById(filtersId);
@@ -17,6 +18,11 @@ export class SortingManager {
     this._instanceId = instanceId;
     this._filterTextBox = this._generateFilterTextBox();
     this._sortingButtons = this._generateSortingButtons(sortingOptions);
+
+    // Initialize sorting states to 'unsorted' for all options
+    sortingOptions.forEach((option) => {
+      this._sortingState[option] = "unsorted";
+    });
   }
 
   public render() {
@@ -30,6 +36,7 @@ export class SortingManager {
     textBox.id = `filter-${this._instanceId}`;
     textBox.placeholder = "Search";
 
+    // Handle CTRL+F
     document.addEventListener("keydown", (event) => {
       if ((event.metaKey || event.ctrlKey) && event.key === "f") {
         event.preventDefault();
@@ -37,13 +44,20 @@ export class SortingManager {
       }
     });
 
+    // Get the search query from the URL (if it exists) and pre-fill the input
+    const urlParams = new URLSearchParams(window.location.search);
+    const searchQuery = urlParams.get("search") || "";
+    textBox.value = searchQuery;
+
     const issuesContainer = document.getElementById("issues-container") as HTMLDivElement;
-    textBox.addEventListener("input", () => {
+
+    const filterIssues = () => {
       try {
         const filterText = textBox.value.toLowerCase();
         const issues = Array.from(issuesContainer.children) as HTMLDivElement[];
         issues.forEach((issue) => {
           const issueId = issue.children[0].getAttribute("data-issue-id");
+          issue.classList.add("active");
           if (!issueId) return;
           const gitHubIssue = taskManager.getGitHubIssueById(parseInt(issueId));
           if (!gitHubIssue) return;
@@ -55,6 +69,24 @@ export class SortingManager {
       } catch (error) {
         return renderErrorInModal(error as Error);
       }
+    };
+
+    // Observer to detect when children are added to the issues container (only once)
+    const observer = new MutationObserver(() => {
+      if (issuesContainer.children.length > 0) {
+        observer.disconnect(); // Stop observing once children are present
+        if (searchQuery) filterIssues(); // Filter on load if search query exists
+      }
+    });
+    observer.observe(issuesContainer, { childList: true });
+
+    textBox.addEventListener("input", () => {
+      const filterText = textBox.value;
+      // Update the URL with the search parameter
+      const newURL = new URL(window.location.href);
+      newURL.searchParams.set("search", filterText);
+      window.history.replaceState({}, "", newURL.toString());
+      filterIssues(); // Run the filter function immediately on input
     });
 
     return textBox;
@@ -100,31 +132,50 @@ export class SortingManager {
   }
 
   private _handleSortingClick(input: HTMLInputElement, option: string) {
-    const ordering = input === this._lastChecked ? "reverse" : "normal";
-    input.checked = input !== this._lastChecked;
-    input.setAttribute("data-ordering", ordering);
-    this._lastChecked = input.checked ? input : null;
-    this._filterTextBox.value = "";
+    const currentOrdering = input.getAttribute("data-ordering");
+    let newOrdering: string;
+
+    // Determine the new ordering based on the current state
+    if (currentOrdering === "normal") {
+      newOrdering = "reverse";
+    } else if (currentOrdering === "reverse") {
+      newOrdering = "disabled";
+    } else {
+      newOrdering = "normal";
+    }
+
+    // Apply the new ordering state
+    input.setAttribute("data-ordering", newOrdering);
     input.parentElement?.childNodes.forEach((node) => {
       if (node instanceof HTMLInputElement) {
         node.setAttribute("data-ordering", "");
       }
     });
 
-    input.setAttribute("data-ordering", ordering);
-    // instantly load from cache
-    try {
-      void displayGitHubIssues(option as Sorting, { ordering });
-    } catch (error) {
-      renderErrorCatch(error as ErrorEvent);
+    if (newOrdering === "disabled") {
+      this._lastChecked = null;
+      input.checked = false;
+      this._clearSorting();
+    } else {
+      input.checked = input !== this._lastChecked;
+      this._lastChecked = input.checked ? input : null;
+      input.setAttribute("data-ordering", newOrdering);
+
+      // Apply the sorting based on the new state (normal or reverse)
+      try {
+        void displayGitHubIssues({ sorting: option as Sorting, options: { ordering: newOrdering } });
+      } catch (error) {
+        renderErrorCatch(error as ErrorEvent);
+      }
     }
-    // load from network in the background
-    // const fetchedPreviews = await fetchIssuePreviews();
-    // const cachedTasks = taskManager.getTasks();
-    // const updatedCachedIssues = verifyGitHubIssueState(cachedTasks, fetchedPreviews);
-    // displayGitHubIssues(sorting, options);
-    // taskManager.syncTasks(updatedCachedIssues);
-    // return fetchAvatars();
+  }
+
+  private _clearSorting() {
+    try {
+      void displayGitHubIssues();
+    } catch (error) {
+      renderErrorInModal(error as Error);
+    }
   }
 }
 
