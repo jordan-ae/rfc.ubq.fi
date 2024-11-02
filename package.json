@@ -10,6 +10,7 @@
   },
   "scripts": {
     "start": "wrangler pages dev --port 8080",
+    "watch": "tsx build/esbuild-server.ts",
     "build": "tsx build/esbuild-build.ts",
     "format": "run-s format:lint format:prettier format:cspell",
     "format:lint": "eslint --fix .",

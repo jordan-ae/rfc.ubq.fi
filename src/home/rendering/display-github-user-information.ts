@@ -25,7 +25,6 @@ export async function displayGitHubUserInformation(gitHubUser: GitHubUser) {
   divNameElement.textContent = gitHubUser.name || gitHubUser.login;
   divNameElement.classList.add("full");
   authenticatedDivElement.appendChild(divNameElement);
-  console.trace()
   authenticatedDivElement.appendChild(img);
 
   authenticatedDivElement.addEventListener("click", async function signOut() {
