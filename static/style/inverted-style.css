@@ -562,7 +562,6 @@
   }
   .preview-body-inner {
     padding: 16px;
-    overflow: scroll;
   }
   .preview-body-inner > :last-child {
     margin-bottom: 0;
@@ -912,6 +911,7 @@
 
   .preview-body {
     overflow-y: auto;
+    overflow-x: hidden;
     /* Update height calculation to use dvh */
     max-height: calc(100dvh - 180px - env(safe-area-inset-bottom, 0px));
     display: block;
