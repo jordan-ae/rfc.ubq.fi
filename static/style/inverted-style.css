@@ -562,7 +562,6 @@
   }
   .preview-body-inner {
     padding: 16px;
-    overflow: scroll;
   }
   .preview-body-inner > :last-child {
     margin-bottom: 0;
@@ -626,11 +625,6 @@
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-  }
-  .preview-body {
-    overflow: scroll;
-    max-height: calc(100vh - 156px);
-    display: block;
   }
   .preview button.close-preview {
     right: 0;
@@ -912,6 +906,7 @@
 
   .preview-body {
     overflow-y: auto;
+    overflow-x: hidden;
     /* Update height calculation to use dvh */
     max-height: calc(100dvh - 180px - env(safe-area-inset-bottom, 0px));
     display: block;
@@ -921,5 +916,13 @@
     -webkit-overflow-scrolling: touch;
     /* Prevent content from going under bottom bar */
     /* padding-bottom: 48px; */
+  }
+  
+  .preview-body::-webkit-scrollbar {
+    width: 2px;
+  }
+
+  .preview-body::-webkit-scrollbar-thumb {
+    border-radius: 4px;
   }
 }
