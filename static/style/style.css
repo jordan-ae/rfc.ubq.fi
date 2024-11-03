@@ -626,11 +626,6 @@
     overflow: hidden;
     text-overflow: ellipsis;
   }
-  .preview-body {
-    overflow: scroll;
-    max-height: calc(100vh - 156px);
-    display: block;
-  }
   .preview button.close-preview {
     right: 0;
     top: 0;
