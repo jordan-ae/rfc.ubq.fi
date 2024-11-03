@@ -89,9 +89,13 @@ self.addEventListener("fetch", (event) => {
         try {
           const networkResponse = await fetch(event.request);
           if (networkResponse.ok) {
-            const responseClone = networkResponse.clone();
-            const cache = await caches.open(cacheName);
-            await cache.put(event.request, responseClone);
+            try {
+              const responseClone = networkResponse.clone();
+              const cache = await caches.open(cacheName);
+              await cache.put(event.request, responseClone);
+            } catch (error) {
+              console.error(`[Service Worker] Failed to cache resource: ${event.request.url}`);
+            }
           }
           return networkResponse;
         } catch (error) {
