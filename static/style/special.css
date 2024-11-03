@@ -36,7 +36,7 @@
     filter: blur(0px) drop-shadow(0 0 8px #fff);
   }
   .preview-body::-webkit-scrollbar-track {
-    background: var(--dark-background);; /* Background */
+    background: var(--dark-background); /* Background */
   }
 
   .preview-body::-webkit-scrollbar-thumb {
@@ -44,7 +44,7 @@
   }
 
   .preview-body::-webkit-scrollbar-thumb:hover {
-    background-color: var(--light-background);;
+    background-color: var(--light-background);
   }
 }
 
@@ -82,7 +82,7 @@
     background-image: none;
   }
   .preview-body::-webkit-scrollbar-track {
-    background: var(--light-background);; /* Background */
+    background: var(--light-background); /* Background */
   }
 
   .preview-body::-webkit-scrollbar-thumb {
@@ -90,7 +90,7 @@
   }
 
   .preview-body::-webkit-scrollbar-thumb:hover {
-    background-color: var(--dark-background);;
+    background-color: var(--dark-background);
   }
 }
 
