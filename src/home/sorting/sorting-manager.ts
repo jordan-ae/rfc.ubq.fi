@@ -26,15 +26,15 @@ export class SortingManager {
   }
 
   public render() {
-    this._toolBarFilters.appendChild(this._sortingButtons);
     this._toolBarFilters.appendChild(this._filterTextBox);
+    this._toolBarFilters.appendChild(this._sortingButtons);
   }
 
   private _generateFilterTextBox() {
     const textBox = document.createElement("input");
     textBox.type = "text";
     textBox.id = `filter-${this._instanceId}`;
-    textBox.placeholder = "Text Filter";
+    textBox.placeholder = "Search";
 
     // Handle CTRL+F
     document.addEventListener("keydown", (event) => {
@@ -51,7 +51,7 @@ export class SortingManager {
 
     const issuesContainer = document.getElementById("issues-container") as HTMLDivElement;
 
-    const filterIssues = () => {
+    function filterIssues() {
       try {
         const filterText = textBox.value.toLowerCase();
         const issues = Array.from(issuesContainer.children) as HTMLDivElement[];
@@ -69,7 +69,7 @@ export class SortingManager {
       } catch (error) {
         return renderErrorInModal(error as Error);
       }
-    };
+    }
 
     // Observer to detect when children are added to the issues container (only once)
     const observer = new MutationObserver(() => {
@@ -163,7 +163,7 @@ export class SortingManager {
 
       // Apply the sorting based on the new state (normal or reverse)
       try {
-        void displayGitHubIssues(option as Sorting, { ordering: newOrdering });
+        void displayGitHubIssues({ sorting: option as Sorting, options: { ordering: newOrdering } });
       } catch (error) {
         renderErrorCatch(error as ErrorEvent);
       }

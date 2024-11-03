@@ -8,7 +8,7 @@ import { setupKeyboardNavigation } from "./setup-keyboard-navigation";
 import { isProposalOnlyViewer } from "../fetch-github/fetch-and-display-previews";
 import { waitForElement } from "./utils";
 
-export function renderGitHubIssues(tasks: GitHubIssue[]) {
+export function renderGitHubIssues(tasks: GitHubIssue[], skipAnimation: boolean) {
   const container = taskManager.getContainer();
   if (container.classList.contains("ready")) {
     container.classList.remove("ready");
@@ -23,8 +23,12 @@ export function renderGitHubIssues(tasks: GitHubIssue[]) {
     if (!existingIssueIds.has(task.id.toString())) {
       const issueWrapper = everyNewIssue({ gitHubIssue: task, container });
       if (issueWrapper) {
-        setTimeout(() => issueWrapper.classList.add("active"), delay);
-        delay += baseDelay;
+        if (skipAnimation) {
+          issueWrapper.classList.add("active");
+        } else {
+          setTimeout(() => issueWrapper.classList.add("active"), delay);
+          delay += baseDelay;
+        }
       }
     }
   }
@@ -196,8 +200,8 @@ function updateUrlWithIssueId(issueID: number) {
     newURL.searchParams.set("proposal", "true");
   }
 
-  // Push to history
-  window.history.pushState({ issueID }, "", newURL.toString());
+  // Set issue in URL
+  window.history.replaceState({ issueID }, "", newURL.toString());
 }
 
 // Opens the preview modal if a URL contains an issueID
@@ -224,11 +228,6 @@ export function loadIssueFromUrl() {
 
   void viewIssueDetails(issue);
 }
-
-// This ensure previews load for the URL
-window.addEventListener("popstate", () => {
-  location.reload();
-});
 
 export function applyAvatarsToIssues() {
   const container = taskManager.getContainer();
