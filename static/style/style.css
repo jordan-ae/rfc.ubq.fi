@@ -922,4 +922,12 @@
     /* Prevent content from going under bottom bar */
     /* padding-bottom: 48px; */
   }
+  
+  .preview-body::-webkit-scrollbar {
+    width: 2px;
+  }
+
+  .preview-body::-webkit-scrollbar-thumb {
+    border-radius: 4px;
+  }
 }
