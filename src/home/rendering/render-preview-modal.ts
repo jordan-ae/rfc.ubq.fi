@@ -18,9 +18,17 @@ export function closeModal() {
   modal.classList.remove("active");
   document.body.classList.remove("preview-active");
   issuesContainer?.classList.remove("keyboard-selection");
-
+  bottomBarClearLabels();
+  
   const newURL = new URL(window.location.href);
   newURL.searchParams.delete("issue");
   newURL.searchParams.delete("proposal");
   window.history.replaceState({}, "", newURL.toString());
+}
+
+export function bottomBarClearLabels() {
+  const existingClonedLabels = bottomBar.querySelector(".labels.cloned-labels");
+  if (existingClonedLabels) {
+    bottomBar.removeChild(existingClonedLabels);
+  }
 }

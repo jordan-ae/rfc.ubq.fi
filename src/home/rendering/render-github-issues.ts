@@ -3,7 +3,7 @@ import { organizationImageCache } from "../fetch-github/fetch-issues-full";
 import { GitHubIssue } from "../github-types";
 import { taskManager } from "../home";
 import { renderErrorInModal } from "./display-popup-modal";
-import { closeModal, modal, modalBodyInner, bottomBar, titleAnchor, titleHeader } from "./render-preview-modal";
+import { closeModal, modal, modalBodyInner, bottomBar, titleAnchor, titleHeader, bottomBarClearLabels } from "./render-preview-modal";
 import { setupKeyboardNavigation } from "./setup-keyboard-navigation";
 import { isProposalOnlyViewer } from "../fetch-github/fetch-and-display-previews";
 import { waitForElement } from "./utils";
@@ -151,6 +151,9 @@ export async function viewIssueDetails(full: GitHubIssue) {
   titleAnchor.href = full.html_url;
   if (!full.body) return;
 
+  // Remove any existing cloned labels from the bottom bar
+  bottomBarClearLabels();
+  
   // Wait for the issue element to exist, useful when loading issue from URL
   const issueElement = await waitForElement(`div[data-issue-id="${full.id}"]`);
 
@@ -163,12 +166,6 @@ export async function viewIssueDetails(full: GitHubIssue) {
 
     // Add an extra class and set padding
     clonedLabels.classList.add("cloned-labels");
-
-    if (window.innerWidth < 1281) {
-      clonedLabels.style.display = "flex";
-    } else {
-      clonedLabels.style.display = "none"; // hide if width >= 1281px
-    }
 
     // Prepend the cloned labels to the modal body
     bottomBar.prepend(clonedLabels);

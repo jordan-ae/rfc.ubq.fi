@@ -13,15 +13,21 @@
   }
   #bottom-bar {
     display: flex;
-    flex-direction: row;
-    align-items: center;
     height: 72px;
     width: 100%;
+    overflow: hidden;
+  }
+  .preview-active #bottom-bar {
+    align-items: center;
   }
   .labels.cloned-labels {
-    width: 60%;
+    display: none;
+  }
+  body.preview-active .labels.cloned-labels {
+    flex-grow: 1;
     padding: 0px 6px;
     display: flex;
+    width: 0%;
   }
   #filters-bottom {
     flex-direction: column;
@@ -855,17 +861,14 @@
     padding: 0 27px;
     border: unset;
   }
-  #bottom-bar {
-    overflow: visible;
-  }
   .preview-active #filters-bottom {
     display: none;
   }
   .preview-active div#mobile-modal-scrub {
-    display: unset;
+    margin-left: auto;
+    display: flex;
     padding-right: 6px;
-    min-width: 165px;
-    width: 40%;
+    align-items: right;
   }
   .preview {
     position: fixed;
