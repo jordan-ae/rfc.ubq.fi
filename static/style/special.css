@@ -35,6 +35,17 @@
   #issues-container::after {
     filter: blur(0px) drop-shadow(0 0 8px #fff);
   }
+  .preview-body::-webkit-scrollbar-track {
+    background: var(--dark-background); /* Background */
+  }
+
+  .preview-body::-webkit-scrollbar-thumb {
+    background-color: var(--light-background-half); /* Scrollbar thumb */
+  }
+
+  .preview-body::-webkit-scrollbar-thumb:hover {
+    background-color: var(--light-background);
+  }
 }
 
 @media (prefers-color-scheme: light) {
@@ -69,6 +80,17 @@
     opacity: 0;
     animation: none;
     background-image: none;
+  }
+  .preview-body::-webkit-scrollbar-track {
+    background: var(--light-background); /* Background */
+  }
+
+  .preview-body::-webkit-scrollbar-thumb {
+    background-color: var(--dark-background-half); /* Scrollbar thumb */
+  }
+
+  .preview-body::-webkit-scrollbar-thumb:hover {
+    background-color: var(--dark-background);
   }
 }
 
