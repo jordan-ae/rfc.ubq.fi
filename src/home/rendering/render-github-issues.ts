@@ -3,7 +3,7 @@ import { organizationImageCache } from "../fetch-github/fetch-issues-full";
 import { GitHubIssue } from "../github-types";
 import { taskManager } from "../home";
 import { renderErrorInModal } from "./display-popup-modal";
-import { closeModal, modal, modalBodyInner, titleAnchor, titleHeader } from "./render-preview-modal";
+import { closeModal, modal, modalBodyInner, bottomBar, titleAnchor, titleHeader } from "./render-preview-modal";
 import { setupKeyboardNavigation } from "./setup-keyboard-navigation";
 import { isProposalOnlyViewer } from "../fetch-github/fetch-and-display-previews";
 import { waitForElement } from "./utils";
@@ -146,9 +146,6 @@ function previewIssue(gitHubIssue: GitHubIssue) {
 
 // Loads the issue preview modal with the issue details
 export async function viewIssueDetails(full: GitHubIssue) {
-  // Reset the modal body to avoid content accumulation from previous issues
-  modalBodyInner.innerHTML = "";
-
   // Update the title and body for the new issue
   titleHeader.textContent = full.title;
   titleAnchor.href = full.html_url;
@@ -166,9 +163,6 @@ export async function viewIssueDetails(full: GitHubIssue) {
 
     // Add an extra class and set padding
     clonedLabels.classList.add("cloned-labels");
-    clonedLabels.style.padding = "5px";
-    clonedLabels.style.paddingLeft = "0px";
-    clonedLabels.style.paddingBottom = "30px";
 
     if (window.innerWidth < 1281) {
       clonedLabels.style.display = "flex";
@@ -177,11 +171,11 @@ export async function viewIssueDetails(full: GitHubIssue) {
     }
 
     // Prepend the cloned labels to the modal body
-    modalBodyInner.prepend(clonedLabels);
+    bottomBar.prepend(clonedLabels);
   }
 
   // Set the issue body content using `marked`
-  modalBodyInner.innerHTML += marked(full.body);
+  modalBodyInner.innerHTML = marked(full.body) as string;
 
   // Show the preview
   modal.classList.add("active");

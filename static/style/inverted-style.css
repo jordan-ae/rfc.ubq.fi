@@ -12,9 +12,16 @@
     justify-content: space-between;
   }
   #bottom-bar {
+    display: flex;
+    flex-direction: row;
     align-items: center;
-    justify-content: center;
     height: 72px;
+    width: 100%;
+  }
+  .labels.cloned-labels {
+    width: 60%;
+    padding: 0px 6px;
+    display: flex;
   }
   #filters-bottom {
     flex-direction: column;
@@ -846,13 +853,12 @@
     border: unset;
   }
   div#mobile-modal-scrub {
-    position: fixed;
     display: none;
   }
   div#mobile-modal-scrub > button {
-    margin-right: 6px;
+    margin-right: 2px;
     font-size: 24px;
-    padding: 0 48px;
+    padding: 0 27px;
     border: unset;
   }
   #bottom-bar {
@@ -863,6 +869,9 @@
   }
   .preview-active div#mobile-modal-scrub {
     display: unset;
+    padding-right: 6px;
+    min-width: 165px;
+    width: 40%;
   }
   .preview {
     position: fixed;
