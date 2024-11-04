@@ -19,7 +19,7 @@ export function closeModal() {
   document.body.classList.remove("preview-active");
   issuesContainer?.classList.remove("keyboard-selection");
   bottomBarClearLabels();
-  
+
   const newURL = new URL(window.location.href);
   newURL.searchParams.delete("issue");
   newURL.searchParams.delete("proposal");

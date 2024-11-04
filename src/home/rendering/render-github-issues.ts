@@ -153,7 +153,7 @@ export async function viewIssueDetails(full: GitHubIssue) {
 
   // Remove any existing cloned labels from the bottom bar
   bottomBarClearLabels();
-  
+
   // Wait for the issue element to exist, useful when loading issue from URL
   const issueElement = await waitForElement(`div[data-issue-id="${full.id}"]`);
 
