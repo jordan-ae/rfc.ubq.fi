@@ -3,9 +3,10 @@ import { organizationImageCache } from "../fetch-github/fetch-issues-full";
 import { GitHubIssue } from "../github-types";
 import { taskManager } from "../home";
 import { renderErrorInModal } from "./display-popup-modal";
-import { closeModal, modal, modalBodyInner, titleAnchor, titleHeader } from "./render-preview-modal";
+import { closeModal, modal, modalBodyInner, bottomBar, titleAnchor, titleHeader, bottomBarClearLabels } from "./render-preview-modal";
 import { setupKeyboardNavigation } from "./setup-keyboard-navigation";
 import { isProposalOnlyViewer } from "../fetch-github/fetch-and-display-previews";
+import { waitForElement } from "./utils";
 
 export function renderGitHubIssues(tasks: GitHubIssue[], skipAnimation: boolean) {
   const container = taskManager.getContainer();
@@ -140,14 +141,37 @@ function parseAndGenerateLabels(task: GitHubIssue) {
 
 // Function to update and show the preview
 function previewIssue(gitHubIssue: GitHubIssue) {
-  viewIssueDetails(gitHubIssue);
+  void viewIssueDetails(gitHubIssue);
 }
 
-export function viewIssueDetails(full: GitHubIssue) {
+// Loads the issue preview modal with the issue details
+export async function viewIssueDetails(full: GitHubIssue) {
   // Update the title and body for the new issue
   titleHeader.textContent = full.title;
   titleAnchor.href = full.html_url;
   if (!full.body) return;
+
+  // Remove any existing cloned labels from the bottom bar
+  bottomBarClearLabels();
+
+  // Wait for the issue element to exist, useful when loading issue from URL
+  const issueElement = await waitForElement(`div[data-issue-id="${full.id}"]`);
+
+  const labelsDiv = issueElement.querySelector(".labels");
+  if (labelsDiv) {
+    // Clone the labels div and remove the img child if it exists
+    const clonedLabels = labelsDiv.cloneNode(true) as HTMLElement;
+    const imgElement = clonedLabels.querySelector("img");
+    if (imgElement) clonedLabels.removeChild(imgElement);
+
+    // Add an extra class and set padding
+    clonedLabels.classList.add("cloned-labels");
+
+    // Prepend the cloned labels to the modal body
+    bottomBar.prepend(clonedLabels);
+  }
+
+  // Set the issue body content using `marked`
   modalBodyInner.innerHTML = marked(full.body) as string;
 
   // Show the preview
@@ -184,10 +208,8 @@ export function loadIssueFromUrl() {
 
   // If ID doesn't exist, don't load issue
   const issue: GitHubIssue = taskManager.getGitHubIssueById(Number(issueID)) as GitHubIssue;
-  console.log(issue);
-  console.log(issueID);
+
   if (!issue) {
-    console.log("deleting");
     const newURL = new URL(window.location.href);
     newURL.searchParams.delete("issue");
     newURL.searchParams.delete("proposal");
@@ -195,7 +217,7 @@ export function loadIssueFromUrl() {
     return;
   }
 
-  viewIssueDetails(issue);
+  void viewIssueDetails(issue);
 }
 
 export function applyAvatarsToIssues() {
