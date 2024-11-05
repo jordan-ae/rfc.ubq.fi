@@ -519,11 +519,8 @@
     position: relative;
     display: inline-block;
     width: 100%;
-    overflow: scroll;
-    height: 48px;
   }
   .preview pre code {
-    position: absolute;
     font-family: monospace;
   }
   .preview ol,
