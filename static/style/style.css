@@ -520,10 +520,12 @@
     display: inline-block;
     width: 100%;
     overflow-x: scroll;
-    background-color: var(--background-color-light);
+    padding: 16px;
+    background-color: #80808020;
   }
   .preview pre code {
     font-family: monospace;
+    font-size: 12px;
   }
   .preview ol,
   .preview ul {
