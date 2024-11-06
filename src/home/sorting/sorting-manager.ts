@@ -17,8 +17,11 @@ export class SortingManager {
     if (!filters) throw new Error(`${filtersId} not found`);
     this._toolBarFilters = filters;
     this._instanceId = instanceId;
-    this._filterTextBox = this._generateFilterTextBox();
+    
+    // Initialize sorting buttons first
     this._sortingButtons = this._generateSortingButtons(sortingOptions);
+    // Then initialize filter text box
+    this._filterTextBox = this._generateFilterTextBox();
 
     // Initialize sorting states to 'unsorted' for all options
     sortingOptions.forEach((option) => {
