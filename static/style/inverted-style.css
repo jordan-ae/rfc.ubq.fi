@@ -519,6 +519,8 @@
     position: relative;
     display: inline-block;
     width: 100%;
+    overflow-x: scroll;
+    background-color: var(--background-color-light);
   }
   .preview pre code {
     font-family: monospace;
