@@ -17,7 +17,7 @@ export class SortingManager {
     if (!filters) throw new Error(`${filtersId} not found`);
     this._toolBarFilters = filters;
     this._instanceId = instanceId;
-    
+
     // Initialize sorting buttons first
     this._sortingButtons = this._generateSortingButtons(sortingOptions);
     // Then initialize filter text box
@@ -62,7 +62,11 @@ export class SortingManager {
 
         // Reset any active sort buttons when searching
         if (filterText) {
-          this._resetSortButtons();
+          //Check if there is any active sort button
+          const activeSortButton = this._sortingButtons.querySelector('input[type="radio"]:checked');
+          if (activeSortButton) {
+            this._resetSortButtons();
+          } 
         }
 
         // Get issue IDs and search results
