@@ -54,9 +54,9 @@ export class SortingManager {
 
     const filterIssues = () => {
       try {
-        const filterText = textBox.value;
+        const filterText = textBox.value.toLowerCase();
         const issues = Array.from(issuesContainer.children) as HTMLDivElement[];
-        
+
         // Reset any active sort buttons when searching
         if (filterText) {
           this._resetSortButtons();
@@ -74,13 +74,13 @@ export class SortingManager {
         issues.forEach((issue) => {
           const issueId = issue.children[0].getAttribute("data-issue-id");
           if (!issueId) return;
-          
+
           const result = searchResults.get(parseInt(issueId));
           if (!result) return;
-          
+
           issue.classList.add("active");
           issue.style.display = result.visible ? "block" : "none";
-          
+
           if (result.score !== undefined) {
             issue.setAttribute("data-relevance-score", result.score.toFixed(3));
           }
@@ -88,11 +88,13 @@ export class SortingManager {
 
         // If there's a search term, sort by relevance
         if (filterText) {
-            issues.sort((a, b) => {
-            const scoreA = parseFloat(a.getAttribute("data-relevance-score") || "0");
-            const scoreB = parseFloat(b.getAttribute("data-relevance-score") || "0");
-            return scoreB - scoreA; // Sort in descending order of relevance score
-            }).forEach((issue) => issuesContainer.appendChild(issue));
+          issues
+            .sort((a, b) => {
+              const scoreA = parseFloat(a.getAttribute("data-relevance-score") || "0");
+              const scoreB = parseFloat(b.getAttribute("data-relevance-score") || "0");
+              return scoreB - scoreA; // Sort in descending order of relevance score
+            })
+            .forEach((issue) => issuesContainer.appendChild(issue));
         }
       } catch (error) {
         return renderErrorInModal(error as Error);
