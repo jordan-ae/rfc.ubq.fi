@@ -62,11 +62,9 @@ export class SortingManager {
 
         // Reset any active sort buttons when searching
         if (filterText) {
-          //Check if there is any active sort button
-          const activeSortButton = this._sortingButtons.querySelector('input[type="radio"]:checked');
-          if (activeSortButton) {
+          if (this) {
             this._resetSortButtons();
-          } 
+          }
         }
 
         // Get issue IDs and search results
