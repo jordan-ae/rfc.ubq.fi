@@ -519,6 +519,7 @@
     position: relative;
     display: inline-block;
     width: 100%;
+    box-sizing: border-box;
     overflow-x: auto;
     padding: 16px;
     background-color: #7f7f7f20;
