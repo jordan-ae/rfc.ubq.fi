@@ -103,7 +103,7 @@ export class SortingManager {
     const observer = new MutationObserver(() => {
       if (issuesContainer.children.length > 0) {
         observer.disconnect(); // Stop observing once children are present
-        if (searchQuery){
+        if (searchQuery) {
           filterIssues();
         }
       }
