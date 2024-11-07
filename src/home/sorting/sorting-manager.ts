@@ -60,13 +60,6 @@ export class SortingManager {
         const filterText = textBox.value.toLowerCase();
         const issues = Array.from(issuesContainer.children) as HTMLDivElement[];
 
-        // Reset any active sort buttons when searching
-        if (filterText) {
-          if (this) {
-            this._resetSortButtons();
-          }
-        }
-
         // Get issue IDs and search results
         const issueIds = issues
           .map((issue) => issue.children[0].getAttribute("data-issue-id"))
@@ -110,13 +103,19 @@ export class SortingManager {
     const observer = new MutationObserver(() => {
       if (issuesContainer.children.length > 0) {
         observer.disconnect(); // Stop observing once children are present
-        if (searchQuery) filterIssues(); // Filter on load if search query exists
+        if (searchQuery){
+          filterIssues();
+        }
       }
     });
     observer.observe(issuesContainer, { childList: true });
 
     textBox.addEventListener("input", () => {
       const filterText = textBox.value;
+      // Reset sorting buttons when there is text in search menu
+      if (filterText) {
+        this._resetSortButtons();
+      }
       // Update the URL with the search parameter
       const newURL = new URL(window.location.href);
       if (filterText) {
