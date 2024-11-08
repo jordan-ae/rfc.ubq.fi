@@ -11,7 +11,7 @@ export async function authentication() {
     return;
   }
 
-  const accessToken = getGitHubAccessToken();
+  const accessToken = await getGitHubAccessToken();
   if (!accessToken) {
     renderGitHubLoginButton();
   }
