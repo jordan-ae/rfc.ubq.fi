@@ -532,12 +532,14 @@
     position: relative;
     display: inline-block;
     width: 100%;
-    overflow: scroll;
-    height: 48px;
+    box-sizing: border-box;
+    overflow-x: auto;
+    padding: 16px;
+    background-color: #7f7f7f20;
   }
   .preview pre code {
-    position: absolute;
     font-family: monospace;
+    font-size: 12px;
   }
   .preview ol,
   .preview ul {
