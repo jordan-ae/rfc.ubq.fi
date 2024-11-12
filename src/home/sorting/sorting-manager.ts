@@ -72,15 +72,16 @@ export class SortingManager {
               const scoreA = parseFloat(a.getAttribute("data-relevance-score") || "0");
               const scoreB = parseFloat(b.getAttribute("data-relevance-score") || "0");
               return scoreB - scoreA; // Sort in descending order of relevance score
-            }).forEach((issue) => {
-                const issueId = issue.children[0].getAttribute("data-issue-id");
-                if (!issueId) return;
-                const result = searchResults.get(parseInt(issueId));
-                if (!result) return;
-                issue.style.display = result.visible ? "block" : "none";
-                if (result.score !== undefined) {
+            })
+            .forEach((issue) => {
+              const issueId = issue.children[0].getAttribute("data-issue-id");
+              if (!issueId) return;
+              const result = searchResults.get(parseInt(issueId));
+              if (!result) return;
+              issue.style.display = result.visible ? "block" : "none";
+              if (result.score !== undefined) {
                 issue.setAttribute("data-relevance-score", result.score.toFixed(3));
-                }
+              }
             });
         }
       } catch (error) {
