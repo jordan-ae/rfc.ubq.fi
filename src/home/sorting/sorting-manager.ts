@@ -54,12 +54,10 @@ export class SortingManager {
     textBox.value = searchQuery;
 
     const issuesContainer = document.getElementById("issues-container") as HTMLDivElement;
-
     const filterIssues = () => {
       try {
         const filterText = textBox.value.toLowerCase();
         const issues = Array.from(issuesContainer.children) as HTMLDivElement[];
-
         // Get issue IDs and search results
         const issueIds = issues
           .map((issue) => issue.children[0].getAttribute("data-issue-id"))
@@ -67,23 +65,6 @@ export class SortingManager {
           .map((id) => parseInt(id));
 
         const searchResults = taskManager.issueSearcher.search(filterText, issueIds);
-
-        // Update visibility and scores
-        issues.forEach((issue) => {
-          const issueId = issue.children[0].getAttribute("data-issue-id");
-          if (!issueId) return;
-
-          const result = searchResults.get(parseInt(issueId));
-          if (!result) return;
-
-          issue.classList.add("active");
-          issue.style.display = result.visible ? "block" : "none";
-
-          if (result.score !== undefined) {
-            issue.setAttribute("data-relevance-score", result.score.toFixed(3));
-          }
-        });
-
         // If there's a search term, sort by relevance
         if (filterText) {
           issues
@@ -91,8 +72,16 @@ export class SortingManager {
               const scoreA = parseFloat(a.getAttribute("data-relevance-score") || "0");
               const scoreB = parseFloat(b.getAttribute("data-relevance-score") || "0");
               return scoreB - scoreA; // Sort in descending order of relevance score
-            })
-            .forEach((issue) => issuesContainer.appendChild(issue));
+            }).forEach((issue) => {
+                const issueId = issue.children[0].getAttribute("data-issue-id");
+                if (!issueId) return;
+                const result = searchResults.get(parseInt(issueId));
+                if (!result) return;
+                issue.style.display = result.visible ? "block" : "none";
+                if (result.score !== undefined) {
+                issue.setAttribute("data-relevance-score", result.score.toFixed(3));
+                }
+            });
         }
       } catch (error) {
         return renderErrorInModal(error as Error);
