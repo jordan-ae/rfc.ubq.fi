@@ -1,7 +1,7 @@
 import { displayGitHubIssues } from "../fetch-github/fetch-and-display-previews";
-import { taskManager } from "../home";
 import { renderErrorInModal } from "../rendering/display-popup-modal";
 import { Sorting } from "./generate-sorting-buttons";
+import { filterIssues } from "./filter-issues";
 
 export class SortingManager {
   private _lastChecked: HTMLInputElement | null = null;
@@ -54,47 +54,17 @@ export class SortingManager {
     textBox.value = searchQuery;
 
     const issuesContainer = document.getElementById("issues-container") as HTMLDivElement;
-    const filterIssues = () => {
-      try {
-        const filterText = textBox.value.toLowerCase();
-        const issues = Array.from(issuesContainer.children) as HTMLDivElement[];
-        // Get issue IDs and search results
-        const issueIds = issues
-          .map((issue) => issue.children[0].getAttribute("data-issue-id"))
-          .filter((id): id is string => id !== null)
-          .map((id) => parseInt(id));
-
-        const searchResults = taskManager.issueSearcher.search(filterText, issueIds);
-        // If there's a search term, sort by relevance
-        if (filterText) {
-          issues
-            .sort((a, b) => {
-              const scoreA = parseFloat(a.getAttribute("data-relevance-score") || "0");
-              const scoreB = parseFloat(b.getAttribute("data-relevance-score") || "0");
-              return scoreB - scoreA; // Sort in descending order of relevance score
-            })
-            .forEach((issue) => {
-              const issueId = issue.children[0].getAttribute("data-issue-id");
-              if (!issueId) return;
-              const result = searchResults.get(parseInt(issueId));
-              if (!result) return;
-              issue.style.display = result.visible ? "block" : "none";
-              if (result.score !== undefined) {
-                issue.setAttribute("data-relevance-score", result.score.toFixed(3));
-              }
-            });
-        }
-      } catch (error) {
-        return renderErrorInModal(error as Error);
-      }
-    }
 
     // Observer to detect when children are added to the issues container (only once)
     const observer = new MutationObserver(() => {
       if (issuesContainer.children.length > 0) {
         observer.disconnect(); // Stop observing once children are present
         if (searchQuery) {
-          filterIssues();
+          try {
+            filterIssues(textBox, issuesContainer);
+          } catch (error) {
+            renderErrorInModal(error as Error);
+          }
         }
       }
     });
@@ -114,7 +84,11 @@ export class SortingManager {
         newURL.searchParams.delete("search");
       }
       window.history.replaceState({}, "", newURL.toString());
-      filterIssues();
+      try {
+        filterIssues(textBox, issuesContainer);
+      } catch (error) {
+        renderErrorInModal(error as Error);
+      }
     });
 
     return textBox;
