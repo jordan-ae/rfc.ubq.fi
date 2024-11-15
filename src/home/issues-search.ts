@@ -32,7 +32,7 @@ export class IssueSearch {
     });
   }
 
-  public search(searchText: string, issueIds: number[]): Map<number, SearchResult> {
+  public search(searchText: string): Map<number, SearchResult> {
     let filterText = searchText.toLowerCase().trim();
     const results = new Map<number, SearchResult>();
     const isFuzzySearchEnabled = filterText.startsWith("?");
@@ -42,22 +42,24 @@ export class IssueSearch {
     }
 
     if (!filterText) {
-      issueIds.forEach((id) => results.set(id, this._createEmptyResult()));
+      for (const id of this._searchableIssues.keys()) {
+        results.set(id, this._createEmptyResult());
+      }
       return results;
     }
 
     const searchTerms = this._preprocessSearchTerms(filterText);
 
-    issueIds.forEach((issueId) => {
+    for (const issueId of this._searchableIssues.keys()) {
       const issue = this._taskManager.getGitHubIssueById(issueId);
       if (!issue) {
-        results.set(issueId, this._createEmptyResult(false));
-        return;
+      results.set(issueId, this._createEmptyResult(false));
+      continue;
       }
 
       const result = this._calculateIssueRelevance(issue, searchTerms, isFuzzySearchEnabled);
       results.set(issueId, result);
-    });
+    }
 
     this._calculateNDCGScore(results);
     return results;

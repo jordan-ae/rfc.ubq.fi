@@ -1,7 +1,6 @@
-import { displayGitHubIssues } from "../fetch-github/fetch-and-display-previews";
+import { displayGitHubIssues, searchDisplayGitHubIssues } from "../fetch-github/fetch-and-display-previews";
 import { renderErrorInModal } from "../rendering/display-popup-modal";
 import { Sorting } from "./generate-sorting-buttons";
-import { filterIssues } from "./filter-issues";
 
 export class SortingManager {
   private _lastChecked: HTMLInputElement | null = null;
@@ -61,7 +60,9 @@ export class SortingManager {
         observer.disconnect(); // Stop observing once children are present
         if (searchQuery) {
           try {
-            filterIssues(textBox, issuesContainer);
+            void searchDisplayGitHubIssues({
+              searchText: searchQuery,
+            });
           } catch (error) {
             renderErrorInModal(error as Error);
           }
@@ -85,7 +86,9 @@ export class SortingManager {
       }
       window.history.replaceState({}, "", newURL.toString());
       try {
-        filterIssues(textBox, issuesContainer);
+        void searchDisplayGitHubIssues({
+          searchText: filterText,
+        });
       } catch (error) {
         renderErrorInModal(error as Error);
       }
