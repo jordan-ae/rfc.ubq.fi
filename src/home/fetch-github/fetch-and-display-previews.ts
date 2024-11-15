@@ -3,7 +3,7 @@ import { taskManager } from "../home";
 import { applyAvatarsToIssues, renderGitHubIssues } from "../rendering/render-github-issues";
 import { renderOrgHeaderLabel } from "../rendering/render-org-header";
 import { closeModal } from "../rendering/render-preview-modal";
-import { filterIssuesBySearch } from "../sorting/filter-issues";
+import { filterIssuesBySearch } from "../sorting/filter-issues-by-search";
 import { Sorting } from "../sorting/generate-sorting-buttons";
 import { sortIssuesController } from "../sorting/sort-issues-controller";
 import { checkCacheIntegrityAndSyncTasks } from "./cache-integrity";

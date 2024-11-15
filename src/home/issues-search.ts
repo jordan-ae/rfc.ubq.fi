@@ -53,8 +53,8 @@ export class IssueSearch {
     for (const issueId of this._searchableIssues.keys()) {
       const issue = this._taskManager.getGitHubIssueById(issueId);
       if (!issue) {
-      results.set(issueId, this._createEmptyResult(false));
-      continue;
+        results.set(issueId, this._createEmptyResult(false));
+        continue;
       }
 
       const result = this._calculateIssueRelevance(issue, searchTerms, isFuzzySearchEnabled);
