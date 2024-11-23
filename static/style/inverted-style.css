@@ -530,6 +530,7 @@
   }
   .preview table {
     border-collapse: collapse;
+    margin-bottom: 12px;
   }
   .preview th {
     font-weight: bold;
