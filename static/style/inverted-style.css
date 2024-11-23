@@ -528,6 +528,17 @@
   .preview img {
     max-width: 100%;
   }
+  .preview table {
+    border-collapse: collapse;
+    margin-bottom: 12px;
+  }
+  .preview th {
+    font-weight: bold;
+  }
+  .preview th, 
+  .preview td {
+    padding: 6px 13px;
+  }
   .preview pre {
     position: relative;
     display: inline-block;
