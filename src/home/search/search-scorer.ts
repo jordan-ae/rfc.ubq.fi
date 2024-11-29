@@ -95,10 +95,14 @@ export class SearchScorer {
     let score = 0;
     if (issue.repository_url) {
       const repoName = issue.repository_url.split("/").pop()?.toLowerCase() || "";
+      const orgName = issue.repository_url.split("/").slice(-2)[0].toLowerCase() || "";
       searchTerms.forEach((term) => {
         if (repoName.startsWith(term.toLowerCase())) {
           matchDetails.repoMatch = true;
           score += term.length / repoName.length;
+        }
+        if (orgName.startsWith(term.toLowerCase())) {
+          score += term.length / orgName.length;
         }
       });
     }
