@@ -20,7 +20,7 @@ export interface SearchWeights {
   body: number;
   fuzzy: number;
   meta: number;
-  repo: number
+  repo: number;
 }
 
 export interface SearchConfig {
