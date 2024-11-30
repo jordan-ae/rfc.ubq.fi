@@ -38,6 +38,8 @@ export class SortingManager {
     textBox.type = "text";
     textBox.id = `filter-${this._instanceId}`;
     textBox.placeholder = "Search";
+    textBox.autocapitalize = "off";
+    textBox.spellcheck = false;
 
     // Handle CTRL+F
     document.addEventListener("keydown", (event) => {
